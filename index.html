@@ -315,19 +315,14 @@
     
   </div>
 
-  <script>
+<script>
     // ========================================
-    // CONFIGURATION - REMPLACE PAR TES VALEURS !
+    // CONFIGURATION
     // ========================================
-    const API_KEY = 'TAIzaSyCaafOeVryqkHHMHZY-sf0sm93g8rTWhv0';
-    const SHEET_ID = '1H_tcVva_mtmqhy1mQLf5xsx2eFveKDY4FjG8q1FWjbM';
-    const CODE_ADMIN = '2026'; // Change ce code !
+    const API_URL = 'TON_URL_APPS_SCRIPT_ICI'; // Colle l'URL du déploiement Apps Script
+    const CODE_ADMIN = '2025';
     
-    // ========================================
-    // VARIABLES GLOBALES
-    // ========================================
     let userData = {};
-    let autoRefreshInterval = null;
     
     // ========================================
     // AU CHARGEMENT
@@ -354,26 +349,23 @@
       afficherMessage('loading', 'Inscription en cours...');
       
       try {
-        // Vérifier si prénom existe
-        const data = await lireSheet('Participants');
-        const prenomExiste = data.some(row => row[1] && row[1].toLowerCase() === prenom.toLowerCase());
+        const response = await fetch(API_URL + '?action=inscrire&prenom=' + encodeURIComponent(prenom));
+        const data = await response.json();
         
-        if (prenomExiste) {
-          afficherMessage('error', 'Ce nom est déjà choisi, merci d\'indiquer votre nom de famille ou surnom.');
-          return;
+        if (data.success) {
+          localStorage.setItem('escapegame_prenom', prenom);
+          
+          if (data.enAttente) {
+            changerPage('page-accueil', 'page-attente');
+          } else {
+            userData = data;
+            document.getElementById('equipeNumero').textContent = data.equipe;
+            document.getElementById('motsAssignes').textContent = data.mots;
+            changerPage('page-accueil', 'page-equipe');
+          }
+        } else {
+          afficherMessage('error', data.message);
         }
-        
-        // Ajouter le participant
-        await ajouterLigne('Participants', [
-          new Date().toISOString(),
-          prenom,
-          'EN ATTENTE',
-          ''
-        ]);
-        
-        localStorage.setItem('escapegame_prenom', prenom);
-        changerPage('page-accueil', 'page-attente');
-        afficherMessage('success', '✅ Inscription réussie !');
         
       } catch (error) {
         afficherMessage('error', 'Erreur : ' + error.message);
@@ -382,26 +374,19 @@
     
     async function verifierStatut(prenom) {
       try {
-        const data = await lireSheet('Participants');
-        const participant = data.find(row => row[1] && row[1].toLowerCase() === prenom.toLowerCase());
+        const response = await fetch(API_URL + '?action=verifierStatut&prenom=' + encodeURIComponent(prenom));
+        const data = await response.json();
         
-        if (!participant) {
-          localStorage.removeItem('escapegame_prenom');
-          return;
-        }
-        
-        userData = {
-          prenom: participant[1],
-          equipe: participant[2],
-          mots: participant[3]
-        };
-        
-        if (participant[2] === 'EN ATTENTE' || !participant[2]) {
-          changerPage('page-accueil', 'page-attente');
-        } else {
-          document.getElementById('equipeNumero').textContent = participant[2];
-          document.getElementById('motsAssignes').textContent = participant[3];
-          changerPage('page-accueil', 'page-equipe');
+        if (data.success) {
+          userData = data;
+          
+          if (data.enAttente) {
+            changerPage('page-accueil', 'page-attente');
+          } else {
+            document.getElementById('equipeNumero').textContent = data.equipe;
+            document.getElementById('motsAssignes').textContent = data.mots;
+            changerPage('page-accueil', 'page-equipe');
+          }
         }
         
       } catch (error) {
@@ -445,50 +430,38 @@
       afficherMessageAdmin('loading', 'Chargement...');
       
       try {
-        const participants = await lireSheet('Participants');
-        const config = await lireSheet('Configuration');
+        const response = await fetch(API_URL + '?action=getStats&code=' + CODE_ADMIN);
+        const data = await response.json();
         
-        const nbTotal = participants.length - 1; // Enlever l'en-tête
-        const statut = config[7] ? config[7][1] : 'OUVERT';
-        const cloture = statut === 'CLOTURE';
-        
-        // Compter les équipes
-        let equipes = {};
-        let enAttente = 0;
-        
-        for (let i = 1; i < participants.length; i++) {
-          const equipe = participants[i][2];
-          if (equipe === 'EN ATTENTE' || !equipe) {
-            enAttente++;
-          } else {
-            equipes[equipe] = (equipes[equipe] || 0) + 1;
-          }
+        if (!data.success) {
+          afficherMessageAdmin('error', data.message);
+          return;
         }
         
         // Afficher les stats
         let html = '';
         
-        if (cloture) {
+        if (data.cloture) {
           html += '<div class="info-box">🔴 <strong>Inscriptions clôturées</strong><br>Le jeu est en cours !</div>';
         } else {
           html += '<div class="info-box">🟢 <strong>Inscriptions ouvertes</strong><br>Les participants peuvent s\'inscrire.</div>';
         }
         
         html += '<div class="stat-grid">';
-        html += '<div class="stat-card"><div class="stat-number">' + nbTotal + '</div><div class="stat-label">Participants</div></div>';
+        html += '<div class="stat-card"><div class="stat-number">' + data.nbTotal + '</div><div class="stat-label">Participants</div></div>';
         
-        if (cloture) {
-          html += '<div class="stat-card"><div class="stat-number">' + Object.keys(equipes).length + '</div><div class="stat-label">Équipes</div></div>';
+        if (data.cloture) {
+          html += '<div class="stat-card"><div class="stat-number">' + Object.keys(data.equipes).length + '</div><div class="stat-label">Équipes</div></div>';
         } else {
-          html += '<div class="stat-card"><div class="stat-number">' + enAttente + '</div><div class="stat-label">En attente</div></div>';
+          html += '<div class="stat-card"><div class="stat-number">' + data.enAttente + '</div><div class="stat-label">En attente</div></div>';
         }
         html += '</div>';
         
-        if (cloture) {
+        if (data.cloture) {
           html += '<div style="margin: 25px 0; padding: 20px; background: #f8f9fa; border-radius: 15px;">';
           html += '<h3 style="color: #667eea; margin-bottom: 15px;">📋 Répartition :</h3>';
-          for (let equipe in equipes) {
-            html += '<div style="padding: 8px 0;">Équipe ' + equipe + ' : <strong>' + equipes[equipe] + ' personne(s)</strong></div>';
+          for (let equipe in data.equipes) {
+            html += '<div style="padding: 8px 0;">Équipe ' + equipe + ' : <strong>' + data.equipes[equipe] + ' personne(s)</strong></div>';
           }
           html += '</div>';
         }
@@ -498,10 +471,10 @@
         // Boutons d'action
         let btnHtml = '';
         
-        if (cloture) {
+        if (data.cloture) {
           btnHtml += '<button class="btn-secondary" onclick="rouvrirInscriptions()">🔓 ROUVRIR LES INSCRIPTIONS</button>';
         } else {
-          if (nbTotal > 0) {
+          if (data.nbTotal > 0) {
             btnHtml += '<button class="btn-success" onclick="cloturerInscriptions()">🔒 CLÔTURER LES INSCRIPTIONS</button>';
           } else {
             btnHtml += '<div class="info-box">⏳ En attente de participants...</div>';
@@ -524,49 +497,20 @@
     }
     
     async function cloturerInscriptions() {
-      if (!confirm('Créer les équipes maintenant ?')) return;
+      if (!confirm('Créer les équipes ?')) return;
       
       afficherMessageAdmin('loading', 'Création des équipes...');
       
       try {
-        const participants = await lireSheet('Participants');
-        const config = await lireSheet('Configuration');
+        const response = await fetch(API_URL + '?action=cloturer&code=' + CODE_ADMIN);
+        const data = await response.json();
         
-        const tailleMax = parseInt(config[2][1]) || 8;
-        const phrase = config[4][1] || 'Cherchez l\'indice caché dans l\'enveloppe rouge mystérieuse';
-        const mots = phrase.split(' ');
-        
-        // Créer les équipes
-        let equipeActuelle = 1;
-        let compteur = 0;
-        
-        const updates = [];
-        
-        for (let i = 1; i < participants.length; i++) {
-          if (compteur >= tailleMax) {
-            equipeActuelle++;
-            compteur = 0;
-          }
-          
-          const indexMot = compteur % mots.length;
-          const motAssigne = mots[indexMot];
-          
-          updates.push({
-            range: `Participants!C${i+1}:D${i+1}`,
-            values: [[equipeActuelle, motAssigne]]
-          });
-          
-          compteur++;
+        if (data.success) {
+          afficherMessageAdmin('success', data.message);
+          setTimeout(chargerDashboard, 2000);
+        } else {
+          afficherMessageAdmin('error', data.message);
         }
-        
-        // Appliquer les mises à jour
-        await mettreAJourPlusieurs(updates);
-        
-        // Marquer comme clôturé
-        await mettreAJour('Configuration!B8', [['CLOTURE']]);
-        
-        afficherMessageAdmin('success', '✅ Équipes créées !');
-        setTimeout(chargerDashboard, 2000);
         
       } catch (error) {
         afficherMessageAdmin('error', 'Erreur : ' + error.message);
@@ -574,27 +518,20 @@
     }
     
     async function rouvrirInscriptions() {
-      if (!confirm('Rouvrir les inscriptions ?')) return;
+      if (!confirm('Rouvrir ?')) return;
       
       afficherMessageAdmin('loading', 'Réouverture...');
       
       try {
-        const participants = await lireSheet('Participants');
+        const response = await fetch(API_URL + '?action=rouvrir&code=' + CODE_ADMIN);
+        const data = await response.json();
         
-        const updates = [];
-        
-        for (let i = 1; i < participants.length; i++) {
-          updates.push({
-            range: `Participants!C${i+1}:D${i+1}`,
-            values: [['EN ATTENTE', '']]
-          });
+        if (data.success) {
+          afficherMessageAdmin('success', data.message);
+          setTimeout(chargerDashboard, 2000);
+        } else {
+          afficherMessageAdmin('error', data.message);
         }
-        
-        await mettreAJourPlusieurs(updates);
-        await mettreAJour('Configuration!B8', [['OUVERT']]);
-        
-        afficherMessageAdmin('success', '✅ Inscriptions réouvertes !');
-        setTimeout(chargerDashboard, 2000);
         
       } catch (error) {
         afficherMessageAdmin('error', 'Erreur : ' + error.message);
@@ -607,85 +544,19 @@
       afficherMessageAdmin('loading', 'Réinitialisation...');
       
       try {
-        const participants = await lireSheet('Participants');
+        const response = await fetch(API_URL + '?action=reinitialiser&code=' + CODE_ADMIN);
+        const data = await response.json();
         
-        // Supprimer toutes les lignes sauf l'en-tête
-        if (participants.length > 1) {
-          await supprimerLignes('Participants', 2, participants.length);
+        if (data.success) {
+          afficherMessageAdmin('success', data.message);
+          setTimeout(chargerDashboard, 2000);
+        } else {
+          afficherMessageAdmin('error', data.message);
         }
-        
-        await mettreAJour('Configuration!B8', [['OUVERT']]);
-        
-        afficherMessageAdmin('success', '✅ Réinitialisé !');
-        setTimeout(chargerDashboard, 2000);
         
       } catch (error) {
         afficherMessageAdmin('error', 'Erreur : ' + error.message);
       }
-    }
-    
-    // ========================================
-    // API GOOGLE SHEETS
-    // ========================================
-    async function lireSheet(nomOnglet) {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${nomOnglet}?key=${API_KEY}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      return data.values || [];
-    }
-    
-    async function ajouterLigne(nomOnglet, valeurs) {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${nomOnglet}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ values: [valeurs] })
-      });
-      
-      return await response.json();
-    }
-    
-    async function mettreAJour(range, valeurs) {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED&key=${API_KEY}`;
-      
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ values: valeurs })
-      });
-      
-      return await response.json();
-    }
-    
-    async function mettreAJourPlusieurs(updates) {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values:batchUpdate?key=${API_KEY}`;
-      
-      const body = {
-        valueInputOption: 'USER_ENTERED',
-        data: updates
-      };
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      
-      return await response.json();
-    }
-    
-    async function supprimerLignes(nomOnglet, debut, fin) {
-      // Note : L'API Sheets ne permet pas de supprimer facilement des lignes
-      // On va plutôt vider les cellules
-      const updates = [];
-      for (let i = debut; i <= fin; i++) {
-        updates.push({
-          range: `${nomOnglet}!A${i}:D${i}`,
-          values: [['', '', '', '']]
-        });
-      }
-      await mettreAJourPlusieurs(updates);
     }
     
     // ========================================
