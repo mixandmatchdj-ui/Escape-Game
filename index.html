@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escape Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 25px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+      max-width: 500px;
+      width: 100%;
+      padding: 40px 30px;
+      animation: slideIn 0.6s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    h1 {
+      text-align: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      font-size: 2.8em;
+      font-weight: 800;
+    }
+    
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 35px;
+      font-size: 1.1em;
+    }
+    
+    .page {
+      display: none;
+    }
+    
+    .page.active {
+      display: block;
+    }
+    
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 18px 20px;
+      border: 3px solid #e0e0e0;
+      border-radius: 15px;
+      font-size: 1.1em;
+      margin-bottom: 25px;
+      transition: all 0.3s;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+    
+    button {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-size: 1.15em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+    }
+    
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    }
+    
+    .btn-small {
+      padding: 12px;
+      font-size: 0.9em;
+      text-transform: none;
+    }
+    
+    .error {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      color: #721c24;
+      padding: 20px;
+      border-radius: 15px;
+      margin: 20px 0;
+      font-weight: 600;
+    }
+    
+    .success {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      padding: 20px;
+      border-radius: 15px;
+      margin: 20px 0;
+      font-weight: 600;
+    }
+    
+    .info-box {
+      background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+      color: #0c5460;
+      padding: 20px;
+      border-radius: 15px;
+      margin: 20px 0;
+      line-height: 1.8;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #888;
+    }
+    
+    .spinner {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #667eea;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 0.8s linear infinite;
+      margin: 20px auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .equipe-badge {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      margin: 25px 0;
+      box-shadow: 0 15px 35px rgba(245, 87, 108, 0.3);
+    }
+    
+    .equipe-numero {
+      font-size: 3.5em;
+      font-weight: 900;
+      margin: 15px 0;
+      text-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .mots-assignes {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 25px;
+      border-radius: 15px;
+      margin: 25px 0;
+      border-left: 6px solid #667eea;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .mots-assignes h3 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 1.2em;
+    }
+    
+    .mots-text {
+      font-size: 1.4em;
+      font-weight: 700;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin: 25px 0;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .stat-number {
+      font-size: 2.5em;
+      font-weight: 900;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .stat-label {
+      color: #888;
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- PAGE ACCUEIL -->
+    <div id="page-accueil" class="page active">
+      <h1>🎯 ESCAPE GAME</h1>
+      <p class="subtitle">Prêt pour l'aventure ?</p>
+      
+      <input type="text" id="prenomInput" placeholder="Entrez votre prénom" autofocus>
+      <button onclick="inscrire()">COMMENCER</button>
+      
+      <div id="message"></div>
+      
+      <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+        <button class="btn-secondary btn-small" onclick="afficherAdmin()">🔐 Administration</button>
+      </div>
+    </div>
+    
+    <!-- PAGE ATTENTE -->
+    <div id="page-attente" class="page">
+      <h1>✅ Inscription réussie !</h1>
+      
+      <div class="info-box">
+        <h3 style="font-size: 1.5em; margin-bottom: 20px;">Vous êtes bien inscrit(e) !</h3>
+        <p style="font-size: 1.1em; line-height: 1.8;">
+          <strong>Patientez...</strong><br>
+          L'organisateur va créer les équipes.
+        </p>
+        <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.5); border-radius: 15px;">
+          <p style="font-size: 1em; font-weight: bold;">
+            ✨ Actualisez cette page dans quelques instants
+          </p>
+        </div>
+      </div>
+      
+      <button onclick="location.reload()">🔄 ACTUALISER</button>
+      <button class="btn-secondary btn-small" onclick="seDeconnecter()">← Changer de prénom</button>
+    </div>
+    
+    <!-- PAGE ÉQUIPE -->
+    <div id="page-equipe" class="page">
+      <h1>👥 Bienvenue !</h1>
+      
+      <div class="equipe-badge">
+        <div>Vous êtes dans</div>
+        <div class="equipe-numero">ÉQUIPE <span id="equipeNumero"></span></div>
+        <div>Retrouvez vos coéquipiers !</div>
+      </div>
+      
+      <div class="mots-assignes">
+        <h3>🔤 Vos mots secrets :</h3>
+        <div class="mots-text" id="motsAssignes"></div>
+      </div>
+      
+      <button onclick="alert('Épreuves à venir...')">COMMENCER L'ESCAPE GAME</button>
+      <button class="btn-secondary btn-small" onclick="seDeconnecter()">← Changer de prénom</button>
+    </div>
+    
+    <!-- PAGE ADMIN -->
+    <div id="page-admin" class="page">
+      <h1>🔐 Administration</h1>
+      
+      <div id="loginAdmin">
+        <p class="subtitle">Entrez le code administrateur</p>
+        <input type="password" id="codeAdmin" placeholder="Code secret">
+        <button onclick="verifierAdmin()">SE CONNECTER</button>
+        <button class="btn-secondary btn-small" onclick="retourAccueil()">← Retour</button>
+      </div>
+      
+      <div id="dashboardAdmin" style="display: none;">
+        <div id="statsContainer"></div>
+        <div id="actionButtons"></div>
+        <button class="btn-secondary btn-small" onclick="rafraichirStats()">🔄 Rafraîchir</button>
+        <button class="btn-secondary btn-small" onclick="retourAccueil()">← Retour Accueil</button>
+      </div>
+      
+      <div id="messageAdmin"></div>
+    </div>
+    
+  </div>
+
+  <script>
+    // ========================================
+    // CONFIGURATION - REMPLACE PAR TES VALEURS !
+    // ========================================
+    const API_KEY = 'TAIzaSyCaafOeVryqkHHMHZY-sf0sm93g8rTWhv0';
+    const SHEET_ID = '1H_tcVva_mtmqhy1mQLf5xsx2eFveKDY4FjG8q1FWjbM';
+    const CODE_ADMIN = '2026'; // Change ce code !
+    
+    // ========================================
+    // VARIABLES GLOBALES
+    // ========================================
+    let userData = {};
+    let autoRefreshInterval = null;
+    
+    // ========================================
+    // AU CHARGEMENT
+    // ========================================
+    window.addEventListener('load', function() {
+      const prenomSauvegarde = localStorage.getItem('escapegame_prenom');
+      
+      if (prenomSauvegarde) {
+        verifierStatut(prenomSauvegarde);
+      }
+    });
+    
+    // ========================================
+    // INSCRIPTION
+    // ========================================
+    async function inscrire() {
+      const prenom = document.getElementById('prenomInput').value.trim();
+      
+      if (!prenom) {
+        afficherMessage('error', 'Veuillez entrer votre prénom');
+        return;
+      }
+      
+      afficherMessage('loading', 'Inscription en cours...');
+      
+      try {
+        // Vérifier si prénom existe
+        const data = await lireSheet('Participants');
+        const prenomExiste = data.some(row => row[1] && row[1].toLowerCase() === prenom.toLowerCase());
+        
+        if (prenomExiste) {
+          afficherMessage('error', 'Ce nom est déjà choisi, merci d\'indiquer votre nom de famille ou surnom.');
+          return;
+        }
+        
+        // Ajouter le participant
+        await ajouterLigne('Participants', [
+          new Date().toISOString(),
+          prenom,
+          'EN ATTENTE',
+          ''
+        ]);
+        
+        localStorage.setItem('escapegame_prenom', prenom);
+        changerPage('page-accueil', 'page-attente');
+        afficherMessage('success', '✅ Inscription réussie !');
+        
+      } catch (error) {
+        afficherMessage('error', 'Erreur : ' + error.message);
+      }
+    }
+    
+    async function verifierStatut(prenom) {
+      try {
+        const data = await lireSheet('Participants');
+        const participant = data.find(row => row[1] && row[1].toLowerCase() === prenom.toLowerCase());
+        
+        if (!participant) {
+          localStorage.removeItem('escapegame_prenom');
+          return;
+        }
+        
+        userData = {
+          prenom: participant[1],
+          equipe: participant[2],
+          mots: participant[3]
+        };
+        
+        if (participant[2] === 'EN ATTENTE' || !participant[2]) {
+          changerPage('page-accueil', 'page-attente');
+        } else {
+          document.getElementById('equipeNumero').textContent = participant[2];
+          document.getElementById('motsAssignes').textContent = participant[3];
+          changerPage('page-accueil', 'page-equipe');
+        }
+        
+      } catch (error) {
+        console.error('Erreur vérification:', error);
+      }
+    }
+    
+    function seDeconnecter() {
+      if (confirm('Voulez-vous changer de prénom ?')) {
+        localStorage.removeItem('escapegame_prenom');
+        location.reload();
+      }
+    }
+    
+    // ========================================
+    // ADMIN
+    // ========================================
+    function afficherAdmin() {
+      changerPage('page-accueil', 'page-admin');
+    }
+    
+    function retourAccueil() {
+      document.getElementById('loginAdmin').style.display = 'block';
+      document.getElementById('dashboardAdmin').style.display = 'none';
+      changerPage('page-admin', 'page-accueil');
+    }
+    
+    function verifierAdmin() {
+      const code = document.getElementById('codeAdmin').value;
+      
+      if (code === CODE_ADMIN) {
+        document.getElementById('loginAdmin').style.display = 'none';
+        document.getElementById('dashboardAdmin').style.display = 'block';
+        chargerDashboard();
+      } else {
+        afficherMessageAdmin('error', 'Code incorrect');
+      }
+    }
+    
+    async function chargerDashboard() {
+      afficherMessageAdmin('loading', 'Chargement...');
+      
+      try {
+        const participants = await lireSheet('Participants');
+        const config = await lireSheet('Configuration');
+        
+        const nbTotal = participants.length - 1; // Enlever l'en-tête
+        const statut = config[7] ? config[7][1] : 'OUVERT';
+        const cloture = statut === 'CLOTURE';
+        
+        // Compter les équipes
+        let equipes = {};
+        let enAttente = 0;
+        
+        for (let i = 1; i < participants.length; i++) {
+          const equipe = participants[i][2];
+          if (equipe === 'EN ATTENTE' || !equipe) {
+            enAttente++;
+          } else {
+            equipes[equipe] = (equipes[equipe] || 0) + 1;
+          }
+        }
+        
+        // Afficher les stats
+        let html = '';
+        
+        if (cloture) {
+          html += '<div class="info-box">🔴 <strong>Inscriptions clôturées</strong><br>Le jeu est en cours !</div>';
+        } else {
+          html += '<div class="info-box">🟢 <strong>Inscriptions ouvertes</strong><br>Les participants peuvent s\'inscrire.</div>';
+        }
+        
+        html += '<div class="stat-grid">';
+        html += '<div class="stat-card"><div class="stat-number">' + nbTotal + '</div><div class="stat-label">Participants</div></div>';
+        
+        if (cloture) {
+          html += '<div class="stat-card"><div class="stat-number">' + Object.keys(equipes).length + '</div><div class="stat-label">Équipes</div></div>';
+        } else {
+          html += '<div class="stat-card"><div class="stat-number">' + enAttente + '</div><div class="stat-label">En attente</div></div>';
+        }
+        html += '</div>';
+        
+        if (cloture) {
+          html += '<div style="margin: 25px 0; padding: 20px; background: #f8f9fa; border-radius: 15px;">';
+          html += '<h3 style="color: #667eea; margin-bottom: 15px;">📋 Répartition :</h3>';
+          for (let equipe in equipes) {
+            html += '<div style="padding: 8px 0;">Équipe ' + equipe + ' : <strong>' + equipes[equipe] + ' personne(s)</strong></div>';
+          }
+          html += '</div>';
+        }
+        
+        document.getElementById('statsContainer').innerHTML = html;
+        
+        // Boutons d'action
+        let btnHtml = '';
+        
+        if (cloture) {
+          btnHtml += '<button class="btn-secondary" onclick="rouvrirInscriptions()">🔓 ROUVRIR LES INSCRIPTIONS</button>';
+        } else {
+          if (nbTotal > 0) {
+            btnHtml += '<button class="btn-success" onclick="cloturerInscriptions()">🔒 CLÔTURER LES INSCRIPTIONS</button>';
+          } else {
+            btnHtml += '<div class="info-box">⏳ En attente de participants...</div>';
+          }
+        }
+        
+        btnHtml += '<button class="btn-danger" onclick="reinitialiser()">🗑️ TOUT RÉINITIALISER</button>';
+        
+        document.getElementById('actionButtons').innerHTML = btnHtml;
+        
+        afficherMessageAdmin('success', '');
+        
+      } catch (error) {
+        afficherMessageAdmin('error', 'Erreur : ' + error.message);
+      }
+    }
+    
+    function rafraichirStats() {
+      chargerDashboard();
+    }
+    
+    async function cloturerInscriptions() {
+      if (!confirm('Créer les équipes maintenant ?')) return;
+      
+      afficherMessageAdmin('loading', 'Création des équipes...');
+      
+      try {
+        const participants = await lireSheet('Participants');
+        const config = await lireSheet('Configuration');
+        
+        const tailleMax = parseInt(config[2][1]) || 8;
+        const phrase = config[4][1] || 'Cherchez l\'indice caché dans l\'enveloppe rouge mystérieuse';
+        const mots = phrase.split(' ');
+        
+        // Créer les équipes
+        let equipeActuelle = 1;
+        let compteur = 0;
+        
+        const updates = [];
+        
+        for (let i = 1; i < participants.length; i++) {
+          if (compteur >= tailleMax) {
+            equipeActuelle++;
+            compteur = 0;
+          }
+          
+          const indexMot = compteur % mots.length;
+          const motAssigne = mots[indexMot];
+          
+          updates.push({
+            range: `Participants!C${i+1}:D${i+1}`,
+            values: [[equipeActuelle, motAssigne]]
+          });
+          
+          compteur++;
+        }
+        
+        // Appliquer les mises à jour
+        await mettreAJourPlusieurs(updates);
+        
+        // Marquer comme clôturé
+        await mettreAJour('Configuration!B8', [['CLOTURE']]);
+        
+        afficherMessageAdmin('success', '✅ Équipes créées !');
+        setTimeout(chargerDashboard, 2000);
+        
+      } catch (error) {
+        afficherMessageAdmin('error', 'Erreur : ' + error.message);
+      }
+    }
+    
+    async function rouvrirInscriptions() {
+      if (!confirm('Rouvrir les inscriptions ?')) return;
+      
+      afficherMessageAdmin('loading', 'Réouverture...');
+      
+      try {
+        const participants = await lireSheet('Participants');
+        
+        const updates = [];
+        
+        for (let i = 1; i < participants.length; i++) {
+          updates.push({
+            range: `Participants!C${i+1}:D${i+1}`,
+            values: [['EN ATTENTE', '']]
+          });
+        }
+        
+        await mettreAJourPlusieurs(updates);
+        await mettreAJour('Configuration!B8', [['OUVERT']]);
+        
+        afficherMessageAdmin('success', '✅ Inscriptions réouvertes !');
+        setTimeout(chargerDashboard, 2000);
+        
+      } catch (error) {
+        afficherMessageAdmin('error', 'Erreur : ' + error.message);
+      }
+    }
+    
+    async function reinitialiser() {
+      if (!confirm('TOUT supprimer ?')) return;
+      
+      afficherMessageAdmin('loading', 'Réinitialisation...');
+      
+      try {
+        const participants = await lireSheet('Participants');
+        
+        // Supprimer toutes les lignes sauf l'en-tête
+        if (participants.length > 1) {
+          await supprimerLignes('Participants', 2, participants.length);
+        }
+        
+        await mettreAJour('Configuration!B8', [['OUVERT']]);
+        
+        afficherMessageAdmin('success', '✅ Réinitialisé !');
+        setTimeout(chargerDashboard, 2000);
+        
+      } catch (error) {
+        afficherMessageAdmin('error', 'Erreur : ' + error.message);
+      }
+    }
+    
+    // ========================================
+    // API GOOGLE SHEETS
+    // ========================================
+    async function lireSheet(nomOnglet) {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${nomOnglet}?key=${API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      return data.values || [];
+    }
+    
+    async function ajouterLigne(nomOnglet, valeurs) {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${nomOnglet}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ values: [valeurs] })
+      });
+      
+      return await response.json();
+    }
+    
+    async function mettreAJour(range, valeurs) {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+      
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ values: valeurs })
+      });
+      
+      return await response.json();
+    }
+    
+    async function mettreAJourPlusieurs(updates) {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values:batchUpdate?key=${API_KEY}`;
+      
+      const body = {
+        valueInputOption: 'USER_ENTERED',
+        data: updates
+      };
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      
+      return await response.json();
+    }
+    
+    async function supprimerLignes(nomOnglet, debut, fin) {
+      // Note : L'API Sheets ne permet pas de supprimer facilement des lignes
+      // On va plutôt vider les cellules
+      const updates = [];
+      for (let i = debut; i <= fin; i++) {
+        updates.push({
+          range: `${nomOnglet}!A${i}:D${i}`,
+          values: [['', '', '', '']]
+        });
+      }
+      await mettreAJourPlusieurs(updates);
+    }
+    
+    // ========================================
+    // UTILITAIRES
+    // ========================================
+    function changerPage(ancienne, nouvelle) {
+      document.getElementById(ancienne).classList.remove('active');
+      document.getElementById(nouvelle).classList.add('active');
+    }
+    
+    function afficherMessage(type, text) {
+      const div = document.getElementById('message');
+      div.className = type;
+      if (type === 'loading') {
+        div.innerHTML = '<div class="spinner"></div>' + text;
+      } else {
+        div.textContent = text;
+      }
+    }
+    
+    function afficherMessageAdmin(type, text) {
+      const div = document.getElementById('messageAdmin');
+      if (!text) {
+        div.style.display = 'none';
+        return;
+      }
+      div.style.display = 'block';
+      div.className = type;
+      if (type === 'loading') {
+        div.innerHTML = '<div class="spinner"></div>' + text;
+      } else {
+        div.textContent = text;
+      }
+    }
+  </script>
+</body>
+</html>
