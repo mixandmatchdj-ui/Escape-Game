@@ -62,6 +62,47 @@
       100% { transform: translateY(10px); }
     }
 
+    /* LOADER OVERLAY */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-spinner {
+      width: 80px;
+      height: 80px;
+      border: 8px solid rgba(0, 255, 255, 0.2);
+      border-top: 8px solid #0FF;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      margin-top: 30px;
+      color: #0FF;
+      font-size: 0.8em;
+      text-shadow: 0 0 10px #0FF;
+      animation: blink 1s infinite;
+    }
+
     .container {
       position: relative;
       z-index: 1;
@@ -351,6 +392,12 @@
   </style>
 </head>
 <body>
+  <!-- LOADER -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">⚡ LOADING... ⚡</div>
+  </div>
+
   <div class="container">
     <!-- PAGE ACCUEIL -->
     <div id="pageAccueil" class="page active">
@@ -425,7 +472,7 @@
 
   <script>
     // ============================================
-    // CONFIGURATION - REMPLACE PAR TON URL API
+    // CONFIGURATION - URL API
     // ============================================
     const API_URL = 'https://script.google.com/macros/s/AKfycbxbjW_NlHgjw9O2g7N5D3nsbyVf0zn-zgGpjQIj3KamOHcTKMK7Wi222li8WlQkwFcC/exec';
 
@@ -435,6 +482,17 @@
       equipe: '',
       mots: ''
     };
+
+    // ============================================
+    // HELPERS LOADER
+    // ============================================
+    function showLoader() {
+      document.getElementById('loadingOverlay').classList.add('active');
+    }
+
+    function hideLoader() {
+      document.getElementById('loadingOverlay').classList.remove('active');
+    }
 
     // ============================================
     // NAVIGATION
@@ -475,22 +533,23 @@
         return;
       }
 
-      // Vérifier le statut des inscriptions
+      showLoader();
+
       try {
         const statutRes = await fetch(`${API_URL}?action=getStatut`);
         const statutData = await statutRes.json();
 
         if (statutData.success) {
           if (statutData.data.statut === "OUVERT") {
-            // Mode inscription
-            inscrire(prenom, code);
+            await inscrire(prenom, code);
           } else {
-            // Mode connexion
-            connexion(prenom, code);
+            await connexion(prenom, code);
           }
         }
       } catch(error) {
         showMessage('messageAccueil', '❌ ERREUR DE CONNEXION AU SERVEUR', 'error');
+      } finally {
+        hideLoader();
       }
     }
 
@@ -503,7 +562,7 @@
           showMessage('messageAccueil', `✅ ${data.message}`, 'success');
           currentUser.prenom = prenom;
           currentUser.code = code;
-          setTimeout(() => showPage('pageAttente'), 2000);
+          setTimeout(() => showPage('pageAttente'), 1500);
         } else {
           showMessage('messageAccueil', `❌ ${data.message}`, 'error');
         }
@@ -545,6 +604,8 @@
         return;
       }
 
+      showLoader();
+
       try {
         const res = await fetch(`${API_URL}?action=connexion&prenom=${encodeURIComponent(currentUser.prenom)}&code=${encodeURIComponent(currentUser.code)}`);
         const data = await res.json();
@@ -556,6 +617,8 @@
         }
       } catch(error) {
         console.error('Erreur check statut:', error);
+      } finally {
+        hideLoader();
       }
     }
 
@@ -580,6 +643,8 @@
     // PAGE ÉPREUVES
     // ============================================
     async function loadEpreuves() {
+      showLoader();
+
       try {
         const res = await fetch(`${API_URL}?action=getEpreuves`);
         const data = await res.json();
@@ -601,6 +666,8 @@
         }
       } catch(error) {
         console.error('Erreur load épreuves:', error);
+      } finally {
+        hideLoader();
       }
     }
 
@@ -608,7 +675,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       const btnEpreuves = document.querySelector('[onclick="showPage(\'pageEpreuves\')"]');
       if (btnEpreuves) {
-        btnEpreuves.addEventListener('click', loadEpreuves);
+        const originalOnClick = btnEpreuves.onclick;
+        btnEpreuves.onclick = function() {
+          originalOnClick.call(this);
+          loadEpreuves();
+        };
       }
     });
 
@@ -621,6 +692,8 @@
         showMessage('messageAdmin', '⚠️ ENTREZ LE CODE ADMIN', 'error');
         return;
       }
+
+      showLoader();
 
       try {
         const res = await fetch(`${API_URL}?action=getStats&codeAdmin=${encodeURIComponent(codeAdmin)}`);
@@ -648,6 +721,8 @@
         }
       } catch(error) {
         showMessage('messageAdmin', '❌ ERREUR DE CONNEXION', 'error');
+      } finally {
+        hideLoader();
       }
     }
 
@@ -660,18 +735,22 @@
 
       if (!confirm('CONFIRMER LA CLÔTURE ET LA CRÉATION DES ÉQUIPES ?')) return;
 
+      showLoader();
+
       try {
         const res = await fetch(`${API_URL}?action=cloturer&codeAdmin=${encodeURIComponent(codeAdmin)}`);
         const data = await res.json();
 
         if (data.success) {
           showMessage('messageAdmin', `✅ ${data.message}`, 'success');
-          loadStats();
+          await loadStats();
         } else {
           showMessage('messageAdmin', `❌ ${data.message}`, 'error');
         }
       } catch(error) {
         showMessage('messageAdmin', '❌ ERREUR DE CONNEXION', 'error');
+      } finally {
+        hideLoader();
       }
     }
 
@@ -684,18 +763,22 @@
 
       if (!confirm('CONFIRMER LA RÉOUVERTURE (LES ÉQUIPES SERONT SUPPRIMÉES) ?')) return;
 
+      showLoader();
+
       try {
         const res = await fetch(`${API_URL}?action=rouvrir&codeAdmin=${encodeURIComponent(codeAdmin)}`);
         const data = await res.json();
 
         if (data.success) {
           showMessage('messageAdmin', `✅ ${data.message}`, 'success');
-          loadStats();
+          await loadStats();
         } else {
           showMessage('messageAdmin', `❌ ${data.message}`, 'error');
         }
       } catch(error) {
         showMessage('messageAdmin', '❌ ERREUR DE CONNEXION', 'error');
+      } finally {
+        hideLoader();
       }
     }
 
@@ -707,6 +790,8 @@
       }
 
       if (!confirm('⚠️ ATTENTION ! CECI VA SUPPRIMER TOUTES LES DONNÉES. CONFIRMER ?')) return;
+
+      showLoader();
 
       try {
         const res = await fetch(`${API_URL}?action=reinitialiser&codeAdmin=${encodeURIComponent(codeAdmin)}`);
@@ -720,6 +805,8 @@
         }
       } catch(error) {
         showMessage('messageAdmin', '❌ ERREUR DE CONNEXION', 'error');
+      } finally {
+        hideLoader();
       }
     }
   </script>
