@@ -3,592 +3,723 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Escape Game</title>
+  <title>🕹️ CYBER ESCAPE - ARCADE EDITION</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     body {
-      font-family: 'Poppins', 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Press Start 2P', cursive;
+      background: #000;
+      color: #0FF;
+      overflow-x: hidden;
+      position: relative;
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
     }
-    
-    .container {
-      background: white;
-      border-radius: 25px;
-      box-shadow: 0 25px 80px rgba(0,0,0,0.4);
-      max-width: 500px;
+
+    /* GRILLE NÉON DE FOND */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      padding: 40px 30px;
-      animation: slideIn 0.6s ease;
+      height: 100%;
+      background: 
+        linear-gradient(0deg, transparent 24%, rgba(0, 255, 255, 0.05) 25%, rgba(0, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 255, 0.05) 75%, rgba(0, 255, 255, 0.05) 76%, transparent 77%, transparent),
+        linear-gradient(90deg, transparent 24%, rgba(0, 255, 255, 0.05) 25%, rgba(0, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 255, 0.05) 75%, rgba(0, 255, 255, 0.05) 76%, transparent 77%, transparent);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
     }
-    
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-30px); }
-      to { opacity: 1; transform: translateY(0); }
+
+    /* SCANLINES CRT */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 9999;
+      animation: scanlines 8s linear infinite;
     }
-    
+
+    @keyframes scanlines {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(10px); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 4px solid #0FF;
+      border-radius: 20px;
+      box-shadow: 
+        0 0 20px #0FF,
+        0 0 40px #0FF,
+        inset 0 0 20px rgba(0, 255, 255, 0.1);
+    }
+
     h1 {
       text-align: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 10px;
-      font-size: 2.8em;
-      font-weight: 800;
+      font-size: 2em;
+      color: #FF00FF;
+      text-shadow: 
+        0 0 10px #FF00FF,
+        0 0 20px #FF00FF,
+        0 0 30px #FF00FF,
+        2px 2px 0 #0FF;
+      margin-bottom: 30px;
+      animation: glitch 3s infinite;
+      letter-spacing: 3px;
     }
-    
-    .subtitle {
-      text-align: center;
-      color: #888;
-      margin-bottom: 35px;
-      font-size: 1.1em;
+
+    @keyframes glitch {
+      0%, 90%, 100% { transform: translate(0); }
+      92% { transform: translate(-2px, 2px); }
+      94% { transform: translate(2px, -2px); }
+      96% { transform: translate(-2px, -2px); }
     }
-    
+
+    h2 {
+      color: #FFFF00;
+      font-size: 1.2em;
+      text-shadow: 0 0 10px #FFFF00, 0 0 20px #FFFF00;
+      margin: 20px 0;
+      border-bottom: 2px solid #FFFF00;
+      padding-bottom: 10px;
+    }
+
     .page {
       display: none;
     }
-    
+
     .page.active {
       display: block;
+      animation: fadeIn 0.5s;
     }
-    
-    input[type="text"], input[type="password"] {
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .input-group {
+      margin: 20px 0;
+    }
+
+    label {
+      display: block;
+      color: #0FF;
+      font-size: 0.8em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 5px #0FF;
+    }
+
+    input {
       width: 100%;
-      padding: 18px 20px;
-      border: 3px solid #e0e0e0;
-      border-radius: 15px;
-      font-size: 1.1em;
-      margin-bottom: 25px;
+      padding: 15px;
+      background: #000;
+      border: 3px solid #0FF;
+      color: #0FF;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.9em;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
       transition: all 0.3s;
     }
-    
+
     input:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      border-color: #FF00FF;
+      box-shadow: 0 0 20px #FF00FF;
     }
-    
+
     button {
       width: 100%;
-      padding: 18px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      padding: 15px;
+      margin: 10px 0;
+      background: linear-gradient(45deg, #FF00FF, #0FF);
       border: none;
-      border-radius: 15px;
-      font-size: 1.15em;
-      font-weight: 700;
+      color: #000;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.9em;
+      font-weight: bold;
       cursor: pointer;
+      border-radius: 10px;
+      box-shadow: 
+        0 0 20px rgba(255, 0, 255, 0.8),
+        0 5px 15px rgba(0, 0, 0, 0.5);
       transition: all 0.3s;
       text-transform: uppercase;
-      margin-bottom: 15px;
+      position: relative;
+      overflow: hidden;
     }
-    
+
     button:hover {
       transform: translateY(-3px);
-      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+      box-shadow: 
+        0 0 30px rgba(255, 0, 255, 1),
+        0 7px 20px rgba(0, 0, 0, 0.7);
+      animation: pulse 0.5s infinite;
     }
-    
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.8); }
+      50% { box-shadow: 0 0 40px rgba(255, 0, 255, 1); }
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
     .btn-secondary {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      background: linear-gradient(45deg, #FFFF00, #FF6600);
     }
-    
-    .btn-success {
-      background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-    }
-    
+
     .btn-danger {
-      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      background: linear-gradient(45deg, #FF0000, #FF00FF);
     }
-    
-    .btn-small {
-      padding: 12px;
-      font-size: 0.9em;
-      text-transform: none;
-    }
-    
-    .error {
-      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-      color: #721c24;
+
+    .message {
       padding: 20px;
-      border-radius: 15px;
       margin: 20px 0;
-      font-weight: 600;
-    }
-    
-    .success {
-      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-      color: #155724;
-      padding: 20px;
-      border-radius: 15px;
-      margin: 20px 0;
-      font-weight: 600;
-    }
-    
-    .info-box {
-      background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
-      color: #0c5460;
-      padding: 20px;
-      border-radius: 15px;
-      margin: 20px 0;
-      line-height: 1.8;
-    }
-    
-    .loading {
-      text-align: center;
-      padding: 30px;
-      color: #888;
-    }
-    
-    .spinner {
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid #667eea;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 0.8s linear infinite;
-      margin: 20px auto;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    .equipe-badge {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      color: white;
-      padding: 40px;
-      border-radius: 20px;
-      text-align: center;
-      margin: 25px 0;
-      box-shadow: 0 15px 35px rgba(245, 87, 108, 0.3);
-    }
-    
-    .equipe-numero {
-      font-size: 3.5em;
-      font-weight: 900;
-      margin: 15px 0;
-      text-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    
-    .mots-assignes {
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      padding: 25px;
-      border-radius: 15px;
-      margin: 25px 0;
-      border-left: 6px solid #667eea;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
-    
-    .mots-assignes h3 {
-      color: #667eea;
-      margin-bottom: 15px;
-      font-size: 1.2em;
-    }
-    
-    .mots-text {
-      font-size: 1.4em;
-      font-weight: 700;
-      color: #333;
+      border-radius: 10px;
+      font-size: 0.8em;
       line-height: 1.6;
-    }
-    
-    .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      margin: 25px 0;
-    }
-    
-    .stat-card {
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      padding: 20px;
-      border-radius: 15px;
       text-align: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      animation: blink 2s infinite;
     }
-    
-    .stat-number {
-      font-size: 2.5em;
-      font-weight: 900;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+
+    .message.success {
+      background: rgba(0, 255, 0, 0.1);
+      border: 2px solid #0F0;
+      color: #0F0;
+      text-shadow: 0 0 10px #0F0;
     }
-    
+
+    .message.error {
+      background: rgba(255, 0, 0, 0.1);
+      border: 2px solid #F00;
+      color: #F00;
+      text-shadow: 0 0 10px #F00;
+    }
+
+    .message.info {
+      background: rgba(0, 255, 255, 0.1);
+      border: 2px solid #0FF;
+      color: #0FF;
+      text-shadow: 0 0 10px #0FF;
+    }
+
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0.7; }
+    }
+
+    .stats {
+      background: rgba(255, 0, 255, 0.1);
+      border: 2px solid #FF00FF;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 0, 255, 0.3);
+      font-size: 0.7em;
+    }
+
     .stat-label {
-      color: #888;
+      color: #FFFF00;
+    }
+
+    .stat-value {
+      color: #0FF;
+      text-shadow: 0 0 5px #0FF;
+    }
+
+    .epreuve-card {
+      background: rgba(0, 255, 255, 0.05);
+      border: 3px solid #0FF;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+      transition: all 0.3s;
+    }
+
+    .epreuve-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+    }
+
+    .epreuve-card h3 {
+      color: #FF00FF;
       font-size: 0.9em;
-      margin-top: 5px;
+      margin-bottom: 15px;
+      text-shadow: 0 0 10px #FF00FF;
+    }
+
+    .epreuve-card p {
+      color: #0FF;
+      font-size: 0.65em;
+      line-height: 1.8;
+      margin: 10px 0;
+    }
+
+    .team-badge {
+      display: inline-block;
+      background: linear-gradient(45deg, #FF00FF, #FFFF00);
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+      animation: pulse 2s infinite;
+    }
+
+    .mots-box {
+      background: rgba(255, 255, 0, 0.1);
+      border: 3px dashed #FFFF00;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .mots-box .mots {
+      color: #FFFF00;
+      font-size: 1.1em;
+      text-shadow: 0 0 15px #FFFF00;
+      letter-spacing: 2px;
+      animation: glow 2s infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% { text-shadow: 0 0 10px #FFFF00; }
+      50% { text-shadow: 0 0 20px #FFFF00, 0 0 30px #FFFF00; }
+    }
+
+    .loader {
+      text-align: center;
+      padding: 40px;
+      font-size: 0.8em;
+      color: #0FF;
+      animation: blink 1s infinite;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 20px;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 1.3em;
+      }
+
+      h2 {
+        font-size: 0.9em;
+      }
+
+      input, button {
+        font-size: 0.7em;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    
     <!-- PAGE ACCUEIL -->
-    <div id="page-accueil" class="page active">
-      <h1>🎯 ESCAPE GAME</h1>
-      <p class="subtitle">Prêt pour l'aventure ?</p>
-      
-      <input type="text" id="prenomInput" placeholder="Entrez votre prénom" autofocus>
-      <button onclick="inscrire()">COMMENCER</button>
-      
-      <div id="message"></div>
-      
-      <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
-        <button class="btn-secondary btn-small" onclick="afficherAdmin()">🔐 Administration</button>
+    <div id="pageAccueil" class="page active">
+      <h1>🕹️ CYBER ESCAPE<br>ARCADE EDITION</h1>
+      <div id="messageAccueil"></div>
+      <div class="input-group">
+        <label>ENTREZ VOTRE PRÉNOM</label>
+        <input type="text" id="prenomAccueil" placeholder="JOUEUR_01" maxlength="30">
       </div>
+      <div class="input-group">
+        <label>CHOISISSEZ VOTRE CODE (4 CHIFFRES)</label>
+        <input type="number" id="codeAccueil" placeholder="0000" maxlength="4" pattern="[0-9]{4}">
+      </div>
+      <button onclick="handleAccueil()">⚡ START GAME ⚡</button>
+      <button class="btn-secondary" onclick="showPage('pageAdmin')">🔧 ADMIN ACCESS</button>
     </div>
-    
+
     <!-- PAGE ATTENTE -->
-    <div id="page-attente" class="page">
-      <h1>✅ Inion réussie !</h1>
-      
-      <div class="info-box">
-        <h3 style="font-size: 1.5em; margin-bottom: 20px;">Vous êtes bien inscrit(e) !</h3>
-        <p style="font-size: 1.1em; line-height: 1.8;">
-          <strong>Patientez...</strong><br>
-          L'organisateur va créer les équipes.
-        </p>
-        <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.5); border-radius: 15px;">
-          <p style="font-size: 1em; font-weight: bold;">
-            ✨ Actualisez cette page dans quelques instants
-          </p>
-        </div>
+    <div id="pageAttente" class="page">
+      <h1>⏳ LOADING...</h1>
+      <div class="message info">
+        <p>PATIENTEZ, L'ORGANISATEUR VA CRÉER LES ÉQUIPES...</p>
+        <p style="margin-top: 15px;">🔄 SYSTÈME EN ATTENTE 🔄</p>
       </div>
-      
-      <button onclick="location.reload()">🔄 ACTUALISER</button>
-      <button class="btn-secondary btn-small" onclick="seDeconnecter()">← Changer de prénom</button>
+      <button onclick="checkStatut()">🔄 ACTUALISER</button>
+      <button class="btn-secondary" onclick="showPage('pageAccueil')">← RETOUR</button>
     </div>
-    
+
     <!-- PAGE ÉQUIPE -->
-    <div id="page-equipe" class="page">
-      <h1>👥 Bienvenue !</h1>
-      
-      <div class="equipe-badge">
-        <div>Vous êtes dans</div>
-        <div class="equipe-numero">ÉQUIPE <span id="equipeNumero"></span></div>
-        <div>Retrouvez vos coéquipiers !</div>
+    <div id="pageEquipe" class="page">
+      <h1>🎮 VOTRE MISSION</h1>
+      <div class="message success">
+        <p>CONNEXION ÉTABLIE ✓</p>
+        <p style="margin-top: 10px;">JOUEUR : <span id="prenomEquipe"></span></p>
       </div>
-      
-      <div class="mots-assignes">
-        <h3>🔤 Vos mots secrets :</h3>
-        <div class="mots-text" id="motsAssignes"></div>
+      <h2>👥 ÉQUIPE</h2>
+      <div style="text-align: center; margin: 20px 0;">
+        <span class="team-badge" id="numeroEquipe"></span>
       </div>
-      
-      <button onclick="alert('Épreuves à venir...')">COMMENCER L'ESCAPE GAME</button>
-      <button class="btn-secondary btn-small" onclick="seDeconnecter()">← Changer de prénom</button>
+      <h2>🔑 VOS MOTS SECRETS</h2>
+      <div class="mots-box">
+        <p style="color: #0FF; font-size: 0.7em; margin-bottom: 10px;">CONSERVEZ CES MOTS PRÉCIEUSEMENT</p>
+        <div class="mots" id="motsEquipe"></div>
+      </div>
+      <button onclick="showPage('pageEpreuves')">🚀 ACCÉDER AUX ÉPREUVES</button>
+      <button class="btn-secondary" onclick="deconnexion()">← DÉCONNEXION</button>
     </div>
-    
+
+    <!-- PAGE ÉPREUVES -->
+    <div id="pageEpreuves" class="page">
+      <h1>⚔️ LES ÉPREUVES</h1>
+      <div id="listeEpreuves"></div>
+      <button class="btn-secondary" onclick="showPage('pageEquipe')">← RETOUR ÉQUIPE</button>
+    </div>
+
     <!-- PAGE ADMIN -->
-    <div id="page-admin" class="page">
-      <h1>🔐 Administration</h1>
-      
-      <div id="loginAdmin">
-        <p class="subtitle">Entrez le code administrateur</p>
-        <input type="password" id="codeAdmin" placeholder="Code secret">
-        <button onclick="verifierAdmin()">SE CONNECTER</button>
-        <button class="btn-secondary btn-small" onclick="retourAccueil()">← Retour</button>
-      </div>
-      
-      <div id="dashboardAdmin" style="display: none;">
-        <div id="statsContainer"></div>
-        <div id="actionButtons"></div>
-        <button class="btn-secondary btn-small" onclick="rafraichirStats()">🔄 Rafraîchir</button>
-        <button class="btn-secondary btn-small" onclick="retourAccueil()">← Retour Accueil</button>
-      </div>
-      
+    <div id="pageAdmin" class="page">
+      <h1>🔧 ADMIN PANEL</h1>
       <div id="messageAdmin"></div>
+      <div class="input-group">
+        <label>CODE ADMIN</label>
+        <input type="password" id="codeAdmin" placeholder="****">
+      </div>
+      <button onclick="loadStats()">📊 VOIR STATISTIQUES</button>
+      <div id="statsAdmin"></div>
+      <button class="btn-secondary" onclick="cloturerInscriptions()">🔒 CLÔTURER & CRÉER ÉQUIPES</button>
+      <button class="btn-secondary" onclick="rouvrirInscriptions()">🔓 ROUVRIR INSCRIPTIONS</button>
+      <button class="btn-danger" onclick="reinitialiser()">💣 RÉINITIALISER TOUT</button>
+      <button onclick="showPage('pageAccueil')">← RETOUR</button>
     </div>
-    
   </div>
 
-<>
-    // ========================================
-    // CONFIGURATION
-    // ========================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzEmX5d0zeWXMYMSsXIWyBgorNE1L0B0ZMNyl2MXGlNSgKy5C7PuOELsrPaSbxVmanA/exec'; // Colle l'URL du déploiement Apps Script
-    const CODE_ADMIN = '2025';
-    
-    let userData = {};
-    
-    // ========================================
-    // AU CHARGEMENT
-    // ========================================
-    window.addEventListener('load', function() {
-      const prenomSauvegarde = localStorage.getItem('escapegame_prenom');
-      
-      if (prenomSauvegarde) {
-        verifierStatut(prenomSauvegarde);
+  <script>
+    // ============================================
+    // CONFIGURATION - REMPLACE PAR TON URL API
+    // ============================================
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxfuY1gzs9KCH34WidSXuM6YGvSPuRjcX2pSzpvswTDWhv-hEjMsaYXgYE6fyDcZpdx/exec';
+
+    let currentUser = {
+      prenom: '',
+      code: '',
+      equipe: '',
+      mots: ''
+    };
+
+    // ============================================
+    // NAVIGATION
+    // ============================================
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      clearMessages();
+    }
+
+    function clearMessages() {
+      document.getElementById('messageAccueil').innerHTML = '';
+      document.getElementById('messageAdmin').innerHTML = '';
+    }
+
+    function showMessage(elementId, message, type) {
+      const div = document.createElement('div');
+      div.className = `message ${type}`;
+      div.innerHTML = `<p>${message}</p>`;
+      document.getElementById(elementId).innerHTML = '';
+      document.getElementById(elementId).appendChild(div);
+    }
+
+    // ============================================
+    // PAGE ACCUEIL - INSCRIPTION / CONNEXION
+    // ============================================
+    async function handleAccueil() {
+      const prenom = document.getElementById('prenomAccueil').value.trim();
+      const code = document.getElementById('codeAccueil').value.trim();
+
+      if (!prenom || !code) {
+        showMessage('messageAccueil', '⚠️ VEUILLEZ REMPLIR TOUS LES CHAMPS', 'error');
+        return;
+      }
+
+      if (!/^\d{4}$/.test(code)) {
+        showMessage('messageAccueil', '⚠️ LE CODE DOIT CONTENIR 4 CHIFFRES', 'error');
+        return;
+      }
+
+      // Vérifier le statut des inscriptions
+      try {
+        const statutRes = await fetch(`${API_URL}?action=getStatut`);
+        const statutData = await statutRes.json();
+
+        if (statutData.success) {
+          if (statutData.data.statut === "OUVERT") {
+            // Mode inscription
+            inscrire(prenom, code);
+          } else {
+            // Mode connexion
+            connexion(prenom, code);
+          }
+        }
+      } catch(error) {
+        showMessage('messageAccueil', '❌ ERREUR DE CONNEXION AU SERVEUR', 'error');
+      }
+    }
+
+    async function inscrire(prenom, code) {
+      try {
+        const res = await fetch(`${API_URL}?action=inscrire&prenom=${encodeURIComponent(prenom)}&code=${encodeURIComponent(code)}`);
+        const data = await res.json();
+
+        if (data.success) {
+          showMessage('messageAccueil', `✅ ${data.message}`, 'success');
+          currentUser.prenom = prenom;
+          currentUser.code = code;
+          setTimeout(() => showPage('pageAttente'), 2000);
+        } else {
+          showMessage('messageAccueil', `❌ ${data.message}`, 'error');
+        }
+      } catch(error) {
+        showMessage('messageAccueil', '❌ ERREUR DE CONNEXION', 'error');
+      }
+    }
+
+    async function connexion(prenom, code) {
+      try {
+        const res = await fetch(`${API_URL}?action=connexion&prenom=${encodeURIComponent(prenom)}&code=${encodeURIComponent(code)}`);
+        const data = await res.json();
+
+        if (data.success) {
+          currentUser.prenom = data.data.prenom;
+          currentUser.code = code;
+
+          if (data.data.statut === "ATTENTE") {
+            showPage('pageAttente');
+          } else {
+            currentUser.equipe = data.data.equipe;
+            currentUser.mots = data.data.mots;
+            afficherEquipe();
+          }
+        } else {
+          showMessage('messageAccueil', `❌ ${data.message}`, 'error');
+        }
+      } catch(error) {
+        showMessage('messageAccueil', '❌ ERREUR DE CONNEXION', 'error');
+      }
+    }
+
+    // ============================================
+    // PAGE ATTENTE
+    // ============================================
+    async function checkStatut() {
+      if (!currentUser.prenom || !currentUser.code) {
+        showPage('pageAccueil');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}?action=connexion&prenom=${encodeURIComponent(currentUser.prenom)}&code=${encodeURIComponent(currentUser.code)}`);
+        const data = await res.json();
+
+        if (data.success && data.data.statut === "EQUIPE") {
+          currentUser.equipe = data.data.equipe;
+          currentUser.mots = data.data.mots;
+          afficherEquipe();
+        }
+      } catch(error) {
+        console.error('Erreur check statut:', error);
+      }
+    }
+
+    // ============================================
+    // PAGE ÉQUIPE
+    // ============================================
+    function afficherEquipe() {
+      document.getElementById('prenomEquipe').textContent = currentUser.prenom;
+      document.getElementById('numeroEquipe').textContent = `ÉQUIPE ${currentUser.equipe}`;
+      document.getElementById('motsEquipe').textContent = currentUser.mots || "AUCUN MOT ASSIGNÉ";
+      showPage('pageEquipe');
+    }
+
+    function deconnexion() {
+      currentUser = { prenom: '', code: '', equipe: '', mots: '' };
+      document.getElementById('prenomAccueil').value = '';
+      document.getElementById('codeAccueil').value = '';
+      showPage('pageAccueil');
+    }
+
+    // ============================================
+    // PAGE ÉPREUVES
+    // ============================================
+    async function loadEpreuves() {
+      try {
+        const res = await fetch(`${API_URL}?action=getEpreuves`);
+        const data = await res.json();
+
+        if (data.success) {
+          const container = document.getElementById('listeEpreuves');
+          container.innerHTML = '';
+
+          data.data.epreuves.forEach(epreuve => {
+            const card = document.createElement('div');
+            card.className = 'epreuve-card';
+            card.innerHTML = `
+              <h3>ÉPREUVE ${epreuve.numero} : ${epreuve.titre}</h3>
+              <p><strong>INSTRUCTIONS :</strong> ${epreuve.instructions}</p>
+              <p><strong>CONTENU :</strong> ${epreuve.contenu}</p>
+            `;
+            container.appendChild(card);
+          });
+        }
+      } catch(error) {
+        console.error('Erreur load épreuves:', error);
+      }
+    }
+
+    // Charger les épreuves au clic sur le bouton
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnEpreuves = document.querySelector('[onclick="showPage(\'pageEpreuves\')"]');
+      if (btnEpreuves) {
+        btnEpreuves.addEventListener('click', loadEpreuves);
       }
     });
-    
-    // ========================================
-    // INSCRIPTION
-    // ========================================
-    async function inscrire() {
-      const prenom = document.getElementById('prenomInput').value.trim();
-      
-      if (!prenom) {
-        afficherMessage('error', 'Veuillez entrer votre prénom');
+
+    // ============================================
+    // PAGE ADMIN
+    // ============================================
+    async function loadStats() {
+      const codeAdmin = document.getElementById('codeAdmin').value;
+      if (!codeAdmin) {
+        showMessage('messageAdmin', '⚠️ ENTREZ LE CODE ADMIN', 'error');
         return;
       }
-      
-      afficherMessage('loading', 'Inscription en cours...');
-      
+
       try {
-        const response = await fetch(API_URL + '?action=inscrire&prenom=' + encodeURIComponent(prenom));
-        const data = await response.json();
-        
+        const res = await fetch(`${API_URL}?action=getStats&codeAdmin=${encodeURIComponent(codeAdmin)}`);
+        const data = await res.json();
+
         if (data.success) {
-          localStorage.setItem('escapegame_prenom', prenom);
+          const stats = data.data;
+          let html = '<div class="stats">';
+          html += `<div class="stat-item"><span class="stat-label">STATUT :</span><span class="stat-value">${stats.statut}</span></div>`;
+          html += `<div class="stat-item"><span class="stat-label">PARTICIPANTS :</span><span class="stat-value">${stats.nbParticipants}</span></div>`;
+          html += `<div class="stat-item"><span class="stat-label">EN ATTENTE :</span><span class="stat-value">${stats.nbEnAttente}</span></div>`;
+          html += `<div class="stat-item"><span class="stat-label">ÉQUIPES :</span><span class="stat-value">${stats.nbEquipes}</span></div>`;
           
-          if (data.enAttente) {
-            changerPage('page-accueil', 'page-attente');
-          } else {
-            userData = data;
-            document.getElementById('equipeNumero').textContent = data.equipe;
-            document.getElementById('motsAssignes').textContent = data.mots;
-            changerPage('page-accueil', 'page-equipe');
+          if (stats.equipes.length > 0) {
+            html += '<div style="margin-top: 20px; color: #FFFF00; font-size: 0.7em;">RÉPARTITION :</div>';
+            stats.equipes.forEach(eq => {
+              html += `<div class="stat-item"><span class="stat-label">ÉQUIPE ${eq.numero} :</span><span class="stat-value">${eq.membres} MEMBRES</span></div>`;
+            });
           }
-        } else {
-          afficherMessage('error', data.message);
-        }
-        
-      } catch (error) {
-        afficherMessage('error', 'Erreur : ' + error.message);
-      }
-    }
-    
-    async function verifierStatut(prenom) {
-      try {
-        const response = await fetch(API_URL + '?action=verifierStatut&prenom=' + encodeURIComponent(prenom));
-        const data = await response.json();
-        
-        if (data.success) {
-          userData = data;
           
-          if (data.enAttente) {
-            changerPage('page-accueil', 'page-attente');
-          } else {
-            document.getElementById('equipeNumero').textContent = data.equipe;
-            document.getElementById('motsAssignes').textContent = data.mots;
-            changerPage('page-accueil', 'page-equipe');
-          }
-        }
-        
-      } catch (error) {
-        console.error('Erreur vérification:', error);
-      }
-    }
-    
-    function seDeconnecter() {
-      if (confirm('Voulez-vous changer de prénom ?')) {
-        localStorage.removeItem('escapegame_prenom');
-        location.reload();
-      }
-    }
-    
-    // ========================================
-    // ADMIN
-    // ========================================
-    function afficherAdmin() {
-      changerPage('page-accueil', 'page-admin');
-    }
-    
-    function retourAccueil() {
-      document.getElementById('loginAdmin').style.display = 'block';
-      document.getElementById('dashboardAdmin').style.display = 'none';
-      changerPage('page-admin', 'page-accueil');
-    }
-    
-    function verifierAdmin() {
-      const code = document.getElementById('codeAdmin').value;
-      
-      if (code === CODE_ADMIN) {
-        document.getElementById('loginAdmin').style.display = 'none';
-        document.getElementById('dashboardAdmin').style.display = 'block';
-        chargerDashboard();
-      } else {
-        afficherMessageAdmin('error', 'Code incorrect');
-      }
-    }
-    
-    async function chargerDashboard() {
-      afficherMessageAdmin('loading', 'Chargement...');
-      
-      try {
-        const response = await fetch(API_URL + '?action=getStats&code=' + CODE_ADMIN);
-        const data = await response.json();
-        
-        if (!data.success) {
-          afficherMessageAdmin('error', data.message);
-          return;
-        }
-        
-        // Afficher les stats
-        let html = '';
-        
-        if (data.cloture) {
-          html += '<div class="info-box">🔴 <strong>Inscriptions clôturées</strong><br>Le jeu est en cours !</div>';
-        } else {
-          html += '<div class="info-box">🟢 <strong>Inscriptions ouvertes</strong><br>Les participants peuvent s\'inscrire.</div>';
-        }
-        
-        html += '<div class="stat-grid">';
-        html += '<div class="stat-card"><div class="stat-number">' + data.nbTotal + '</div><div class="stat-label">Participants</div></div>';
-        
-        if (data.cloture) {
-          html += '<div class="stat-card"><div class="stat-number">' + Object.keys(data.equipes).length + '</div><div class="stat-label">Équipes</div></div>';
-        } else {
-          html += '<div class="stat-card"><div class="stat-number">' + data.enAttente + '</div><div class="stat-label">En attente</div></div>';
-        }
-        html += '</div>';
-        
-        if (data.cloture) {
-          html += '<div style="margin: 25px 0; padding: 20px; background: #f8f9fa; border-radius: 15px;">';
-          html += '<h3 style="color: #667eea; margin-bottom: 15px;">📋 Répartition :</h3>';
-          for (let equipe in data.equipes) {
-            html += '<div style="padding: 8px 0;">Équipe ' + equipe + ' : <strong>' + data.equipes[equipe] + ' personne(s)</strong></div>';
-          }
           html += '</div>';
-        }
-        
-        document.getElementById('statsContainer').innerHTML = html;
-        
-        // Boutons d'action
-        let btnHtml = '';
-        
-        if (data.cloture) {
-          btnHtml += '<button class="btn-secondary" onclick="rouvrirInscriptions()">🔓 ROUVRIR LES INSCRIPTIONS</button>';
+          document.getElementById('statsAdmin').innerHTML = html;
         } else {
-          if (data.nbTotal > 0) {
-            btnHtml += '<button class="btn-success" onclick="cloturerInscriptions()">🔒 CLÔTURER LES INSCRIPTIONS</button>';
-          } else {
-            btnHtml += '<div class="info-box">⏳ En attente de participants...</div>';
-          }
+          showMessage('messageAdmin', `❌ ${data.message}`, 'error');
         }
-        
-        btnHtml += '<button class="btn-danger" onclick="reinitialiser()">🗑️ TOUT RÉINITIALISER</button>';
-        
-        document.getElementById('actionButtons').innerHTML = btnHtml;
-        
-        afficherMessageAdmin('success', '');
-        
-      } catch (error) {
-        afficherMessageAdmin('error', 'Erreur : ' + error.message);
+      } catch(error) {
+        showMessage('messageAdmin', '❌ ERREUR DE CONNEXION', 'error');
       }
     }
-    
-    function rafraichirStats() {
-      chargerDashboard();
-    }
-    
+
     async function cloturerInscriptions() {
-      if (!confirm('Créer les équipes ?')) return;
-      
-      afficherMessageAdmin('loading', 'Création des équipes...');
-      
-      try {
-        const response = await fetch(API_URL + '?action=cloturer&code=' + CODE_ADMIN);
-        const data = await response.json();
-        
-        if (data.success) {
-          afficherMessageAdmin('success', data.message);
-          setTimeout(chargerDashboard, 2000);
-        } else {
-          afficherMessageAdmin('error', data.message);
-        }
-        
-      } catch (error) {
-        afficherMessageAdmin('error', 'Erreur : ' + error.message);
-      }
-    }
-    
-    async function rouvrirInscriptions() {
-      if (!confirm('Rouvrir ?')) return;
-      
-      afficherMessageAdmin('loading', 'Réouverture...');
-      
-      try {
-        const response = await fetch(API_URL + '?action=rouvrir&code=' + CODE_ADMIN);
-        const data = await response.json();
-        
-        if (data.success) {
-          afficherMessageAdmin('success', data.message);
-          setTimeout(chargerDashboard, 2000);
-        } else {
-          afficherMessageAdmin('error', data.message);
-        }
-        
-      } catch (error) {
-        afficherMessageAdmin('error', 'Erreur : ' + error.message);
-      }
-    }
-    
-    async function reinitialiser() {
-      if (!confirm('TOUT supprimer ?')) return;
-      
-      afficherMessageAdmin('loading', 'Réinitialisation...');
-      
-      try {
-        const response = await fetch(API_URL + '?action=reinitialiser&code=' + CODE_ADMIN);
-        const data = await response.json();
-        
-        if (data.success) {
-          afficherMessageAdmin('success', data.message);
-          setTimeout(chargerDashboard, 2000);
-        } else {
-          afficherMessageAdmin('error', data.message);
-        }
-        
-      } catch (error) {
-        afficherMessageAdmin('error', 'Erreur : ' + error.message);
-      }
-    }
-    
-    // ========================================
-    // UTILITAIRES
-    // ========================================
-    function changerPage(ancienne, nouvelle) {
-      document.getElementById(ancienne).classList.remove('active');
-      document.getElementById(nouvelle).classList.add('active');
-    }
-    
-    function afficherMessage(type, text) {
-      const div = document.getElementById('message');
-      div.className = type;
-      if (type === 'loading') {
-        div.innerHTML = '<div class="spinner"></div>' + text;
-      } else {
-        div.textContent = text;
-      }
-    }
-    
-    function afficherMessageAdmin(type, text) {
-      const div = document.getElementById('messageAdmin');
-      if (!text) {
-        div.style.display = 'none';
+      const codeAdmin = document.getElementById('codeAdmin').value;
+      if (!codeAdmin) {
+        showMessage('messageAdmin', '⚠️ ENTREZ LE CODE ADMIN', 'error');
         return;
       }
-      div.style.display = 'block';
-      div.className = type;
-      if (type === 'loading') {
-        div.innerHTML = '<div class="spinner"></div>' + text;
-      } else {
-        div.textContent = text;
+
+      if (!confirm('CONFIRMER LA CLÔTURE ET LA CRÉATION DES ÉQUIPES ?')) return;
+
+      try {
+        const res = await fetch(`${API_URL}?action=cloturer&codeAdmin=${encodeURIComponent(codeAdmin)}`);
+        const data = await res.json();
+
+        if (data.success) {
+          showMessage('messageAdmin', `✅ ${data.message}`, 'success');
+          loadStats();
+        } else {
+          showMessage('messageAdmin', `❌ ${data.message}`, 'error');
+        }
+      } catch(error) {
+        showMessage('messageAdmin', '❌ ERREUR DE CONNEXION', 'error');
+      }
+    }
+
+    async function rouvrirInscriptions() {
+      const codeAdmin = document.getElementById('codeAdmin').value;
+      if (!codeAdmin) {
+        showMessage('messageAdmin', '⚠️ ENTREZ LE CODE ADMIN', 'error');
+        return;
+      }
+
+      if (!confirm('CONFIRMER LA RÉOUVERTURE (LES ÉQUIPES SERONT SUPPRIMÉES) ?')) return;
+
+      try {
+        const res = await fetch(`${API_URL}?action=rouvrir&codeAdmin=${encodeURIComponent(codeAdmin)}`);
+        const data = await res.json();
+
+        if (data.success) {
+          showMessage('messageAdmin', `✅ ${data.message}`, 'success');
+          loadStats();
+        } else {
+          showMessage('messageAdmin', `❌ ${data.message}`, 'error');
+        }
+      } catch(error) {
+        showMessage('messageAdmin', '❌ ERREUR DE CONNEXION', 'error');
+      }
+    }
+
+    async function reinitialiser() {
+      const codeAdmin = document.getElementById('codeAdmin').value;
+      if (!codeAdmin) {
+        showMessage('messageAdmin', '⚠️ ENTREZ LE CODE ADMIN', 'error');
+        return;
+      }
+
+      if (!confirm('⚠️ ATTENTION ! CECI VA SUPPRIMER TOUTES LES DONNÉES. CONFIRMER ?')) return;
+
+      try {
+        const res = await fetch(`${API_URL}?action=reinitialiser&codeAdmin=${encodeURIComponent(codeAdmin)}`);
+        const data = await res.json();
+
+        if (data.success) {
+          showMessage('messageAdmin', `✅ ${data.message}`, 'success');
+          document.getElementById('statsAdmin').innerHTML = '';
+        } else {
+          showMessage('messageAdmin', `❌ ${data.message}`, 'error');
+        }
+      } catch(error) {
+        showMessage('messageAdmin', '❌ ERREUR DE CONNEXION', 'error');
       }
     }
   </script>
