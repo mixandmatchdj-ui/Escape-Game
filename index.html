@@ -533,17 +533,20 @@
 
     <!-- PAGE ÉQUIPE -->
     <div id="pageEquipe" class="page">
-      <h1>CYBER ESCAPE</h1>
+      <h1>
+        <span>🎮</span>
+        <span>CYBER ESCAPE</span>
+        <span>🎮</span>
+      </h1>
       <div class="message success">
         <p>CONNEXION ETABLIE ✓</p>
         <p style="margin-top: 10px;">JOUEUR : <span id="prenomEquipe"></span></p>
       </div>
-      <h2>👥 EQUIPE</h2>
-      <div style="text-align: center; margin: 20px 0;">
+      <div style="text-align: center; margin: 30px 0;">
         <span class="team-badge" id="numeroEquipe"></span>
       </div>
       <div class="info-box">
-        <p>⚠️ MERCI DE RETROUVER VOS PARTENAIRES DE JEUX AVANT DE COMMENCER LES EPREUVES ⚠️</p>
+        <p>⚠️ MERCI DE RETROUVER VOS PARTENAIRES AVANT DE COMMENCER LES EPREUVES ⚠️</p>
       </div>
       <button onclick="accederEpreuves()">
         <span>🚀</span>
@@ -556,12 +559,6 @@
     <!-- PAGE ÉPREUVES -->
     <div id="pageEpreuves" class="page">
       <h1>⚔️ LES EPREUVES</h1>
-      
-      <h2>🔑 VOS MOTS SECRETS</h2>
-      <div class="mots-box">
-        <p style="color: #0FF; font-size: 0.7em; margin-bottom: 10px;">CONSERVEZ CES MOTS PRECIEUSEMENT</p>
-        <div class="mots" id="motsEpreuves"></div>
-      </div>
 
       <!-- ONGLETS -->
       <div class="tabs" id="tabsEpreuves">
@@ -781,9 +778,6 @@
         if (data.success) {
           epreuvesData = data.data.epreuves;
           
-          // Afficher les mots secrets
-          document.getElementById('motsEpreuves').textContent = currentUser.mots || "AUCUN MOT ASSIGNE";
-          
           // Créer les onglets
           const tabsContainer = document.getElementById('tabsEpreuves');
           const contentsContainer = document.getElementById('tabContentsEpreuves');
@@ -804,24 +798,25 @@
             tabContent.className = 'tab-content' + (index === 0 ? ' active' : '');
             tabContent.id = `tab-content-${index}`;
             
-            let contentHTML = `
-              <div class="epreuve-card">
-                <h3>EPREUVE ${epreuve.numero} : ${epreuve.titre}</h3>
-                <p><strong>INSTRUCTIONS :</strong> ${epreuve.instructions}</p>
-                <p><strong>CONTENU :</strong> ${epreuve.contenu}</p>
-            `;
+            let contentHTML = '';
             
-            // Si c'est l'épreuve 1, rappeler les mots secrets
+            // Si c'est l'épreuve 1, afficher les mots secrets en premier
             if (epreuve.numero === 1) {
               contentHTML += `
-                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 0, 0.1); border: 2px dashed #FFFF00; border-radius: 8px;">
-                  <p style="color: #FFFF00; font-size: 0.75em; margin-bottom: 8px;">🔑 RAPPEL - VOS MOTS SECRETS :</p>
+                <div class="mots-box">
                   <p style="color: #FFFF00; font-size: 0.85em; text-shadow: 0 0 10px #FFFF00;">${currentUser.mots || "AUCUN MOT"}</p>
                 </div>
               `;
             }
             
-            contentHTML += `</div>`;
+            contentHTML += `
+              <div class="epreuve-card">
+                <h3>EPREUVE ${epreuve.numero} : ${epreuve.titre}</h3>
+                <p><strong>INSTRUCTIONS :</strong> ${epreuve.instructions}</p>
+                <p><strong>CONTENU :</strong> ${epreuve.contenu}</p>
+              </div>
+            `;
+            
             tabContent.innerHTML = contentHTML;
             contentsContainer.appendChild(tabContent);
           });
