@@ -130,6 +130,10 @@
       margin-bottom: 30px;
       animation: glitch 3s infinite;
       letter-spacing: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
     }
 
     @keyframes glitch {
@@ -193,6 +197,16 @@
       box-shadow: 0 0 20px #FF00FF;
     }
 
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .button-group button {
+      flex: 1;
+    }
+
     button {
       width: 100%;
       padding: 15px;
@@ -212,6 +226,10 @@
       text-transform: uppercase;
       position: relative;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
 
     button:hover {
@@ -300,35 +318,6 @@
       text-shadow: 0 0 5px #0FF;
     }
 
-    .epreuve-card {
-      background: rgba(0, 255, 255, 0.05);
-      border: 3px solid #0FF;
-      padding: 20px;
-      margin: 15px 0;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-      transition: all 0.3s;
-    }
-
-    .epreuve-card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
-    }
-
-    .epreuve-card h3 {
-      color: #FF00FF;
-      font-size: 0.9em;
-      margin-bottom: 15px;
-      text-shadow: 0 0 10px #FF00FF;
-    }
-
-    .epreuve-card p {
-      color: #0FF;
-      font-size: 0.65em;
-      line-height: 1.8;
-      margin: 10px 0;
-    }
-
     .team-badge {
       display: inline-block;
       background: linear-gradient(45deg, #FF00FF, #FFFF00);
@@ -338,7 +327,12 @@
       font-size: 1.2em;
       font-weight: bold;
       box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
-      animation: pulse 2s infinite;
+      animation: pulse-badge 2s infinite;
+    }
+
+    @keyframes pulse-badge {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
 
     .mots-box {
@@ -363,6 +357,89 @@
       50% { text-shadow: 0 0 20px #FFFF00, 0 0 30px #FFFF00; }
     }
 
+    .info-box {
+      background: rgba(0, 255, 255, 0.1);
+      border: 2px solid #0FF;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.75em;
+      line-height: 1.8;
+      color: #0FF;
+      text-shadow: 0 0 5px #0FF;
+    }
+
+    /* ONGLETS */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .tab-button {
+      flex: 1;
+      min-width: 100px;
+      padding: 12px;
+      background: rgba(0, 255, 255, 0.1);
+      border: 2px solid #0FF;
+      color: #0FF;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.7em;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s;
+      text-shadow: 0 0 5px #0FF;
+      margin: 0;
+    }
+
+    .tab-button:hover {
+      background: rgba(0, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px #0FF;
+    }
+
+    .tab-button.active {
+      background: linear-gradient(45deg, #FF00FF, #0FF);
+      color: #000;
+      border-color: #FF00FF;
+      text-shadow: none;
+      box-shadow: 0 0 20px #FF00FF;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    .epreuve-card {
+      background: rgba(0, 255, 255, 0.05);
+      border: 3px solid #0FF;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    }
+
+    .epreuve-card h3 {
+      color: #FF00FF;
+      font-size: 0.9em;
+      margin-bottom: 15px;
+      text-shadow: 0 0 10px #FF00FF;
+    }
+
+    .epreuve-card p {
+      color: #0FF;
+      font-size: 0.65em;
+      line-height: 1.8;
+      margin: 10px 0;
+    }
+
     .loader {
       text-align: center;
       padding: 40px;
@@ -379,6 +456,8 @@
 
       h1 {
         font-size: 1.3em;
+        flex-direction: column;
+        gap: 10px;
       }
 
       h2 {
@@ -387,6 +466,18 @@
 
       input, button {
         font-size: 0.7em;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .tabs {
+        flex-direction: column;
+      }
+
+      .tab-button {
+        width: 100%;
       }
     }
   </style>
@@ -401,26 +492,40 @@
   <div class="container">
     <!-- PAGE ACCUEIL -->
     <div id="pageAccueil" class="page active">
-      <h1>🕹️ CYBER ESCAPE<br>ARCADE EDITION</h1>
+      <h1>
+        <span>🎮</span>
+        <span>CYBER ESCAPE</span>
+        <span>🎮</span>
+      </h1>
       <div id="messageAccueil"></div>
       <div class="input-group">
-        <label>ENTREZ VOTRE PRÉNOM</label>
+        <label>ENTREZ VOTRE PRENOM</label>
         <input type="text" id="prenomAccueil" placeholder="JOUEUR_01" maxlength="30">
       </div>
       <div class="input-group">
         <label>CHOISISSEZ VOTRE CODE (4 CHIFFRES)</label>
         <input type="number" id="codeAccueil" placeholder="0000" maxlength="4" pattern="[0-9]{4}">
       </div>
-      <button onclick="handleAccueil()">⚡ START GAME ⚡</button>
-      <button class="btn-secondary" onclick="showPage('pageAdmin')">🔧 ADMIN ACCESS</button>
+      <div class="button-group">
+        <button onclick="handleAccueil()">
+          <span>⚡</span>
+          <span>START GAME</span>
+          <span>⚡</span>
+        </button>
+        <button class="btn-secondary" onclick="showPage('pageAdmin')">
+          <span>🔧</span>
+          <span>ADMIN ACCESS</span>
+          <span>🔧</span>
+        </button>
+      </div>
     </div>
 
     <!-- PAGE ATTENTE -->
     <div id="pageAttente" class="page">
       <h1>⏳ LOADING...</h1>
       <div class="message info">
-        <p>PATIENTEZ, L'ORGANISATEUR VA CRÉER LES ÉQUIPES...</p>
-        <p style="margin-top: 15px;">🔄 SYSTÈME EN ATTENTE 🔄</p>
+        <p>PATIENTEZ, L'ORGANISATEUR VA CREER LES EQUIPES...</p>
+        <p style="margin-top: 15px;">🔄 SYSTEME EN ATTENTE 🔄</p>
       </div>
       <button onclick="checkStatut()">🔄 ACTUALISER</button>
       <button class="btn-secondary" onclick="showPage('pageAccueil')">← RETOUR</button>
@@ -428,29 +533,47 @@
 
     <!-- PAGE ÉQUIPE -->
     <div id="pageEquipe" class="page">
-      <h1>🎮 VOTRE MISSION</h1>
+      <h1>VOTRE MISSION</h1>
       <div class="message success">
-        <p>CONNEXION ÉTABLIE ✓</p>
+        <p>CONNEXION ETABLIE ✓</p>
         <p style="margin-top: 10px;">JOUEUR : <span id="prenomEquipe"></span></p>
       </div>
-      <h2>👥 ÉQUIPE</h2>
+      <h2>👥 EQUIPE</h2>
       <div style="text-align: center; margin: 20px 0;">
         <span class="team-badge" id="numeroEquipe"></span>
       </div>
-      <h2>🔑 VOS MOTS SECRETS</h2>
-      <div class="mots-box">
-        <p style="color: #0FF; font-size: 0.7em; margin-bottom: 10px;">CONSERVEZ CES MOTS PRÉCIEUSEMENT</p>
-        <div class="mots" id="motsEquipe"></div>
+      <div class="info-box">
+        <p>⚠️ MERCI DE RETROUVER VOS PARTENAIRES DE JEUX AVANT DE COMMENCER LES EPREUVES ⚠️</p>
       </div>
-      <button onclick="showPage('pageEpreuves')">🚀 ACCÉDER AUX ÉPREUVES</button>
-      <button class="btn-secondary" onclick="deconnexion()">← DÉCONNEXION</button>
+      <button onclick="accederEpreuves()">
+        <span>🚀</span>
+        <span>ACCEDER AUX EPREUVES</span>
+        <span>🚀</span>
+      </button>
+      <button class="btn-secondary" onclick="deconnexion()">← DECONNEXION</button>
     </div>
 
     <!-- PAGE ÉPREUVES -->
     <div id="pageEpreuves" class="page">
-      <h1>⚔️ LES ÉPREUVES</h1>
-      <div id="listeEpreuves"></div>
-      <button class="btn-secondary" onclick="showPage('pageEquipe')">← RETOUR ÉQUIPE</button>
+      <h1>⚔️ LES EPREUVES</h1>
+      
+      <h2>🔑 VOS MOTS SECRETS</h2>
+      <div class="mots-box">
+        <p style="color: #0FF; font-size: 0.7em; margin-bottom: 10px;">CONSERVEZ CES MOTS PRECIEUSEMENT</p>
+        <div class="mots" id="motsEpreuves"></div>
+      </div>
+
+      <!-- ONGLETS -->
+      <div class="tabs" id="tabsEpreuves">
+        <!-- Les onglets seront générés dynamiquement -->
+      </div>
+
+      <!-- CONTENUS DES ONGLETS -->
+      <div id="tabContentsEpreuves">
+        <!-- Les contenus seront générés dynamiquement -->
+      </div>
+
+      <button class="btn-secondary" onclick="showPage('pageEquipe')">← RETOUR EQUIPE</button>
     </div>
 
     <!-- PAGE ADMIN -->
@@ -463,9 +586,9 @@
       </div>
       <button onclick="loadStats()">📊 VOIR STATISTIQUES</button>
       <div id="statsAdmin"></div>
-      <button class="btn-secondary" onclick="cloturerInscriptions()">🔒 CLÔTURER & CRÉER ÉQUIPES</button>
+      <button class="btn-secondary" onclick="cloturerInscriptions()">🔒 CLOTURER & CREER EQUIPES</button>
       <button class="btn-secondary" onclick="rouvrirInscriptions()">🔓 ROUVRIR INSCRIPTIONS</button>
-      <button class="btn-danger" onclick="reinitialiser()">💣 RÉINITIALISER TOUT</button>
+      <button class="btn-danger" onclick="reinitialiser()">💣 REINITIALISER TOUT</button>
       <button onclick="showPage('pageAccueil')">← RETOUR</button>
     </div>
   </div>
@@ -482,6 +605,8 @@
       equipe: '',
       mots: ''
     };
+
+    let epreuvesData = [];
 
     // ============================================
     // HELPERS LOADER
@@ -627,13 +752,13 @@
     // ============================================
     function afficherEquipe() {
       document.getElementById('prenomEquipe').textContent = currentUser.prenom;
-      document.getElementById('numeroEquipe').textContent = `ÉQUIPE ${currentUser.equipe}`;
-      document.getElementById('motsEquipe').textContent = currentUser.mots || "AUCUN MOT ASSIGNÉ";
+      document.getElementById('numeroEquipe').textContent = `EQUIPE ${currentUser.equipe}`;
       showPage('pageEquipe');
     }
 
     function deconnexion() {
       currentUser = { prenom: '', code: '', equipe: '', mots: '' };
+      epreuvesData = [];
       document.getElementById('prenomAccueil').value = '';
       document.getElementById('codeAccueil').value = '';
       showPage('pageAccueil');
@@ -642,46 +767,81 @@
     // ============================================
     // PAGE ÉPREUVES
     // ============================================
-    async function loadEpreuves() {
+    async function accederEpreuves() {
       showLoader();
+      await loadEpreuves();
+      hideLoader();
+    }
 
+    async function loadEpreuves() {
       try {
         const res = await fetch(`${API_URL}?action=getEpreuves`);
         const data = await res.json();
 
         if (data.success) {
-          const container = document.getElementById('listeEpreuves');
-          container.innerHTML = '';
-
-          data.data.epreuves.forEach(epreuve => {
-            const card = document.createElement('div');
-            card.className = 'epreuve-card';
-            card.innerHTML = `
-              <h3>ÉPREUVE ${epreuve.numero} : ${epreuve.titre}</h3>
-              <p><strong>INSTRUCTIONS :</strong> ${epreuve.instructions}</p>
-              <p><strong>CONTENU :</strong> ${epreuve.contenu}</p>
+          epreuvesData = data.data.epreuves;
+          
+          // Afficher les mots secrets
+          document.getElementById('motsEpreuves').textContent = currentUser.mots || "AUCUN MOT ASSIGNE";
+          
+          // Créer les onglets
+          const tabsContainer = document.getElementById('tabsEpreuves');
+          const contentsContainer = document.getElementById('tabContentsEpreuves');
+          
+          tabsContainer.innerHTML = '';
+          contentsContainer.innerHTML = '';
+          
+          epreuvesData.forEach((epreuve, index) => {
+            // Créer l'onglet
+            const tabButton = document.createElement('button');
+            tabButton.className = 'tab-button' + (index === 0 ? ' active' : '');
+            tabButton.textContent = `EPREUVE ${epreuve.numero}`;
+            tabButton.onclick = () => switchTab(index);
+            tabsContainer.appendChild(tabButton);
+            
+            // Créer le contenu
+            const tabContent = document.createElement('div');
+            tabContent.className = 'tab-content' + (index === 0 ? ' active' : '');
+            tabContent.id = `tab-content-${index}`;
+            
+            let contentHTML = `
+              <div class="epreuve-card">
+                <h3>EPREUVE ${epreuve.numero} : ${epreuve.titre}</h3>
+                <p><strong>INSTRUCTIONS :</strong> ${epreuve.instructions}</p>
+                <p><strong>CONTENU :</strong> ${epreuve.contenu}</p>
             `;
-            container.appendChild(card);
+            
+            // Si c'est l'épreuve 1, rappeler les mots secrets
+            if (epreuve.numero === 1) {
+              contentHTML += `
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 0, 0.1); border: 2px dashed #FFFF00; border-radius: 8px;">
+                  <p style="color: #FFFF00; font-size: 0.75em; margin-bottom: 8px;">🔑 RAPPEL - VOS MOTS SECRETS :</p>
+                  <p style="color: #FFFF00; font-size: 0.85em; text-shadow: 0 0 10px #FFFF00;">${currentUser.mots || "AUCUN MOT"}</p>
+                </div>
+              `;
+            }
+            
+            contentHTML += `</div>`;
+            tabContent.innerHTML = contentHTML;
+            contentsContainer.appendChild(tabContent);
           });
+          
+          showPage('pageEpreuves');
         }
       } catch(error) {
         console.error('Erreur load épreuves:', error);
-      } finally {
-        hideLoader();
       }
     }
 
-    // Charger les épreuves au clic sur le bouton
-    document.addEventListener('DOMContentLoaded', () => {
-      const btnEpreuves = document.querySelector('[onclick="showPage(\'pageEpreuves\')"]');
-      if (btnEpreuves) {
-        const originalOnClick = btnEpreuves.onclick;
-        btnEpreuves.onclick = function() {
-          originalOnClick.call(this);
-          loadEpreuves();
-        };
-      }
-    });
+    function switchTab(tabIndex) {
+      // Désactiver tous les onglets et contenus
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      // Activer l'onglet et le contenu sélectionnés
+      document.querySelectorAll('.tab-button')[tabIndex].classList.add('active');
+      document.getElementById(`tab-content-${tabIndex}`).classList.add('active');
+    }
 
     // ============================================
     // PAGE ADMIN
@@ -705,12 +865,12 @@
           html += `<div class="stat-item"><span class="stat-label">STATUT :</span><span class="stat-value">${stats.statut}</span></div>`;
           html += `<div class="stat-item"><span class="stat-label">PARTICIPANTS :</span><span class="stat-value">${stats.nbParticipants}</span></div>`;
           html += `<div class="stat-item"><span class="stat-label">EN ATTENTE :</span><span class="stat-value">${stats.nbEnAttente}</span></div>`;
-          html += `<div class="stat-item"><span class="stat-label">ÉQUIPES :</span><span class="stat-value">${stats.nbEquipes}</span></div>`;
+          html += `<div class="stat-item"><span class="stat-label">EQUIPES :</span><span class="stat-value">${stats.nbEquipes}</span></div>`;
           
           if (stats.equipes.length > 0) {
-            html += '<div style="margin-top: 20px; color: #FFFF00; font-size: 0.7em;">RÉPARTITION :</div>';
+            html += '<div style="margin-top: 20px; color: #FFFF00; font-size: 0.7em;">REPARTITION :</div>';
             stats.equipes.forEach(eq => {
-              html += `<div class="stat-item"><span class="stat-label">ÉQUIPE ${eq.numero} :</span><span class="stat-value">${eq.membres} MEMBRES</span></div>`;
+              html += `<div class="stat-item"><span class="stat-label">EQUIPE ${eq.numero} :</span><span class="stat-value">${eq.membres} MEMBRES</span></div>`;
             });
           }
           
@@ -733,7 +893,7 @@
         return;
       }
 
-      if (!confirm('CONFIRMER LA CLÔTURE ET LA CRÉATION DES ÉQUIPES ?')) return;
+      if (!confirm('CONFIRMER LA CLOTURE ET LA CREATION DES EQUIPES ?')) return;
 
       showLoader();
 
@@ -761,7 +921,7 @@
         return;
       }
 
-      if (!confirm('CONFIRMER LA RÉOUVERTURE (LES ÉQUIPES SERONT SUPPRIMÉES) ?')) return;
+      if (!confirm('CONFIRMER LA REOUVERTURE (LES EQUIPES SERONT SUPPRIMEES) ?')) return;
 
       showLoader();
 
@@ -789,7 +949,7 @@
         return;
       }
 
-      if (!confirm('⚠️ ATTENTION ! CECI VA SUPPRIMER TOUTES LES DONNÉES. CONFIRMER ?')) return;
+      if (!confirm('⚠️ ATTENTION ! CECI VA SUPPRIMER TOUTES LES DONNEES. CONFIRMER ?')) return;
 
       showLoader();
 
