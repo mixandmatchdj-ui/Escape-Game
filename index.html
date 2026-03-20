@@ -4,7 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🕹️ CYBER ESCAPE - ARCADE EDITION</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  
+  <!-- FIREBASE SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
   <style>
     * {
       margin: 0;
@@ -62,7 +68,83 @@
       100% { transform: translateY(10px); }
     }
 
-    /* LOADER OVERLAY */
+    /* TIMER */
+    .timer-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(90deg, #0FF, #00FF00, #FFFF00, #FF6600, #FF0000);
+      z-index: 10000;
+      transition: width 1s linear;
+    }
+
+    .timer-display {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid #0FF;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 1.2em;
+      color: #0FF;
+      text-shadow: 0 0 10px #0FF;
+      z-index: 10001;
+    }
+
+    /* CLASSEMENT MINI */
+    .mini-classement {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid #FF00FF;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 0.6em;
+      color: #FF00FF;
+      z-index: 10001;
+      min-width: 200px;
+    }
+
+    .mini-classement h4 {
+      margin-bottom: 10px;
+      color: #FFFF00;
+      text-shadow: 0 0 5px #FFFF00;
+    }
+
+    .mini-classement-item {
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* MESSAGES ADMIN */
+    .message-admin {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 0, 255, 0.95);
+      border: 3px solid #FFFF00;
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 500px;
+      color: #000;
+      font-size: 0.8em;
+      z-index: 10002;
+      animation: slideUp 0.5s;
+      box-shadow: 0 0 30px #FF00FF;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+      to { transform: translateX(-50%) translateY(0); opacity: 1; }
+    }
+
+    /* RESTE DU CSS (identique à avant) */
     .loading-overlay {
       display: none;
       position: fixed;
@@ -178,7 +260,7 @@
       text-shadow: 0 0 5px #0FF;
     }
 
-    input {
+    input, textarea {
       width: 100%;
       padding: 15px;
       background: #000;
@@ -191,7 +273,7 @@
       transition: all 0.3s;
     }
 
-    input:focus {
+    input:focus, textarea:focus {
       outline: none;
       border-color: #FF00FF;
       box-shadow: 0 0 20px #FF00FF;
@@ -293,84 +375,25 @@
       25%, 75% { opacity: 0.7; }
     }
 
-    .stats {
-      background: rgba(255, 0, 255, 0.1);
-      border: 2px solid #FF00FF;
-      padding: 20px;
-      margin: 20px 0;
-      border-radius: 10px;
-    }
-
-    .stat-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255, 0, 255, 0.3);
-      font-size: 0.7em;
-    }
-
-    .stat-label {
-      color: #FFFF00;
-    }
-
-    .stat-value {
-      color: #0FF;
-      text-shadow: 0 0 5px #0FF;
-    }
-
-    .team-badge {
-      display: inline-block;
-      background: linear-gradient(45deg, #FF00FF, #FFFF00);
+    .capitaine-badge {
+      background: linear-gradient(45deg, #FFD700, #FFA500);
       color: #000;
       padding: 10px 20px;
       border-radius: 20px;
-      font-size: 1.2em;
-      font-weight: bold;
-      box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
-      animation: pulse-badge 2s infinite;
+      font-size: 0.8em;
+      display: inline-block;
+      margin: 10px 0;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
     }
 
-    @keyframes pulse-badge {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    .mots-box {
-      background: rgba(255, 255, 0, 0.1);
-      border: 3px dashed #FFFF00;
+    .validation-box {
+      background: rgba(255, 0, 255, 0.1);
+      border: 3px solid #FF00FF;
       padding: 20px;
       margin: 20px 0;
       border-radius: 10px;
-      text-align: center;
     }
 
-    .mots-box .mots {
-      color: #FFFF00;
-      font-size: 1.1em;
-      text-shadow: 0 0 15px #FFFF00;
-      letter-spacing: 2px;
-      animation: glow 2s infinite;
-    }
-
-    @keyframes glow {
-      0%, 100% { text-shadow: 0 0 10px #FFFF00; }
-      50% { text-shadow: 0 0 20px #FFFF00, 0 0 30px #FFFF00; }
-    }
-
-    .info-box {
-      background: rgba(0, 255, 255, 0.1);
-      border: 2px solid #0FF;
-      padding: 20px;
-      margin: 20px 0;
-      border-radius: 10px;
-      text-align: center;
-      font-size: 0.75em;
-      line-height: 1.8;
-      color: #0FF;
-      text-shadow: 0 0 5px #0FF;
-    }
-
-    /* ONGLETS */
     .tabs {
       display: flex;
       gap: 10px;
@@ -440,14 +463,6 @@
       margin: 10px 0;
     }
 
-    .loader {
-      text-align: center;
-      padding: 40px;
-      font-size: 0.8em;
-      color: #0FF;
-      animation: blink 1s infinite;
-    }
-
     @media (max-width: 768px) {
       .container {
         margin: 20px;
@@ -472,17 +487,27 @@
         flex-direction: column;
       }
 
-      .tabs {
-        flex-direction: column;
-      }
-
-      .tab-button {
-        width: 100%;
+      .timer-display, .mini-classement {
+        font-size: 0.6em;
+        right: 10px;
       }
     }
   </style>
 </head>
 <body>
+  <!-- TIMER -->
+  <div id="timerBar" class="timer-bar" style="display: none;"></div>
+  <div id="timerDisplay" class="timer-display" style="display: none;">00:00</div>
+
+  <!-- MINI CLASSEMENT -->
+  <div id="miniClassement" class="mini-classement" style="display: none;">
+    <h4>🏆 CLASSEMENT</h4>
+    <div id="miniClassementContent"></div>
+  </div>
+
+  <!-- MESSAGES ADMIN -->
+  <div id="messageAdminDisplay" style="display: none;"></div>
+
   <!-- LOADER -->
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-spinner"></div>
@@ -527,7 +552,6 @@
         <p>PATIENTEZ, L'ORGANISATEUR VA CREER LES EQUIPES...</p>
         <p style="margin-top: 15px;">🔄 SYSTEME EN ATTENTE 🔄</p>
       </div>
-      <button onclick="checkStatut()">🔄 ACTUALISER</button>
       <button class="btn-secondary" onclick="showPage('pageAccueil')">← RETOUR</button>
     </div>
 
@@ -541,11 +565,12 @@
       <div class="message success">
         <p>CONNEXION ETABLIE ✓</p>
         <p style="margin-top: 10px;">JOUEUR : <span id="prenomEquipe"></span></p>
+        <div id="capitaineBadge"></div>
       </div>
       <div style="text-align: center; margin: 30px 0;">
-        <span class="team-badge" id="numeroEquipe"></span>
+        <span style="display: inline-block; background: linear-gradient(45deg, #FF00FF, #FFFF00); color: #000; padding: 10px 20px; border-radius: 20px; font-size: 1.2em; font-weight: bold; box-shadow: 0 0 20px rgba(255, 0, 255, 0.8); animation: pulse-badge 2s infinite;" id="numeroEquipe"></span>
       </div>
-      <div class="info-box">
+      <div style="background: rgba(0, 255, 255, 0.1); border: 2px solid #0FF; padding: 20px; margin: 20px 0; border-radius: 10px; text-align: center; font-size: 0.75em; line-height: 1.8; color: #0FF; text-shadow: 0 0 5px #0FF;">
         <p>⚠️ MERCI DE RETROUVER VOS PARTENAIRES AVANT DE COMMENCER LES EPREUVES ⚠️</p>
       </div>
       <button onclick="accederEpreuves()">
@@ -558,17 +583,10 @@
 
     <!-- PAGE ÉPREUVES -->
     <div id="pageEpreuves" class="page">
-      <h1>⚔️ LES EPREUVES ⚔️</h1>
-
-      <!-- ONGLETS -->
-      <div class="tabs" id="tabsEpreuves">
-        <!-- Les onglets seront générés dynamiquement -->
-      </div>
-
-      <!-- CONTENUS DES ONGLETS -->
-      <div id="tabContentsEpreuves">
-        <!-- Les contenus seront générés dynamiquement -->
-      </div>
+      <h1>⚔️ LES EPREUVES</h1>
+      
+      <div class="tabs" id="tabsEpreuves"></div>
+      <div id="tabContentsEpreuves"></div>
 
       <button class="btn-secondary" onclick="showPage('pageEquipe')">← RETOUR EQUIPE</button>
     </div>
@@ -579,10 +597,44 @@
       <div id="messageAdmin"></div>
       <div class="input-group">
         <label>CODE ADMIN</label>
-        <input type="password" id="codeAdmin" placeholder="****">
+        <input type="password" id="codeAdmin" placeholder="****" value="2025">
       </div>
-      <button onclick="loadStats()">📊 VOIR STATISTIQUES</button>
+
+      <!-- TIMER CONTROL -->
+      <h2>⏱️ TIMER</h2>
+      <div class="input-group">
+        <label>DUREE (MINUTES)</label>
+        <input type="number" id="timerDuree" value="30" min="1" max="120">
+      </div>
+      <div class="button-group">
+        <button onclick="demarrerTimer()">▶️ DEMARRER</button>
+        <button class="btn-secondary" onclick="pauserTimer()">⏸️ PAUSE</button>
+        <button class="btn-danger" onclick="resetTimer()">⏹️ RESET</button>
+      </div>
+
+      <!-- MESSAGES -->
+      <h2>💬 ENVOYER UN MESSAGE</h2>
+      <div class="input-group">
+        <textarea id="messageTexte" rows="3" placeholder="Votre message..."></textarea>
+      </div>
+      <div class="input-group">
+        <label>DESTINATAIRE</label>
+        <select id="messageDestinataire" style="width: 100%; padding: 15px; background: #000; border: 3px solid #0FF; color: #0FF; font-family: 'Press Start 2P', cursive; font-size: 0.8em; border-radius: 5px;">
+          <option value="all">TOUTES LES EQUIPES</option>
+        </select>
+      </div>
+      <button onclick="envoyerMessage()">📢 ENVOYER</button>
+
+      <!-- STATS & CLASSEMENT -->
+      <h2>📊 STATISTIQUES</h2>
+      <button onclick="loadStats()">🔄 ACTUALISER</button>
       <div id="statsAdmin"></div>
+
+      <h2>🏆 CLASSEMENT DETAILLE</h2>
+      <div id="classementDetail"></div>
+
+      <!-- ACTIONS -->
+      <h2>⚙️ ACTIONS</h2>
       <button class="btn-secondary" onclick="cloturerInscriptions()">🔒 CLOTURER & CREER EQUIPES</button>
       <button class="btn-secondary" onclick="rouvrirInscriptions()">🔓 ROUVRIR INSCRIPTIONS</button>
       <button class="btn-danger" onclick="reinitialiser()">💣 REINITIALISER TOUT</button>
@@ -592,21 +644,38 @@
 
   <script>
     // ============================================
-    // CONFIGURATION - URL API
+    // CONFIGURATION FIREBASE
     // ============================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxbjW_NlHgjw9O2g7N5D3nsbyVf0zn-zgGpjQIj3KamOHcTKMK7Wi222li8WlQkwFcC/exec';
+    const firebaseConfig = {
+      // ⚠️ REMPLACE PAR TA CONFIG ICI
+  apiKey: "AIzaSyBzbU8tPGxCdhUmUNAt-o1mYu0TqZrwgDU",
+  authDomain: "escape-game-arcade.firebaseapp.com",
+  databaseURL: "https://escape-game-arcade-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "escape-game-arcade",
+  storageBucket: "escape-game-arcade.firebasestorage.app",
+  messagingSenderId: "1019753256982",
+  appId: "1:1019753256982:web:de9476caa51eeac0557d37"
+};
 
+    // Initialiser Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Variables globales
     let currentUser = {
+      id: null,
       prenom: '',
       code: '',
-      equipe: '',
-      mots: ''
+      equipe: null,
+      mots: '',
+      capitaine: false
     };
 
     let epreuvesData = [];
+    let timerInterval = null;
 
-    // ============================================
-    // HELPERS LOADER
+   // ============================================
+    // HELPERS
     // ============================================
     function showLoader() {
       document.getElementById('loadingOverlay').classList.add('active');
@@ -616,9 +685,6 @@
       document.getElementById('loadingOverlay').classList.remove('active');
     }
 
-    // ============================================
-    // NAVIGATION
-    // ============================================
     function showPage(pageId) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(pageId).classList.add('active');
@@ -638,8 +704,13 @@
       document.getElementById(elementId).appendChild(div);
     }
 
+    function normalizeString(str) {
+      return str.toString().trim().toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
     // ============================================
-    // PAGE ACCUEIL - INSCRIPTION / CONNEXION
+    // INSCRIPTION
     // ============================================
     async function handleAccueil() {
       const prenom = document.getElementById('prenomAccueil').value.trim();
@@ -658,18 +729,18 @@
       showLoader();
 
       try {
-        const statutRes = await fetch(`${API_URL}?action=getStatut`);
-        const statutData = await statutRes.json();
+        // Vérifier le statut des inscriptions
+        const configSnapshot = await db.ref('config/statutInscriptions').once('value');
+        const statut = configSnapshot.val();
 
-        if (statutData.success) {
-          if (statutData.data.statut === "OUVERT") {
-            await inscrire(prenom, code);
-          } else {
-            await connexion(prenom, code);
-          }
+        if (statut === "OUVERT") {
+          await inscrire(prenom, code);
+        } else {
+          await connexion(prenom, code);
         }
       } catch(error) {
-        showMessage('messageAccueil', '❌ ERREUR DE CONNEXION AU SERVEUR', 'error');
+        console.error(error);
+        showMessage('messageAccueil', '❌ ERREUR DE CONNEXION', 'error');
       } finally {
         hideLoader();
       }
@@ -677,92 +748,146 @@
 
     async function inscrire(prenom, code) {
       try {
-        const res = await fetch(`${API_URL}?action=inscrire&prenom=${encodeURIComponent(prenom)}&code=${encodeURIComponent(code)}`);
-        const data = await res.json();
-
-        if (data.success) {
-          showMessage('messageAccueil', `✅ ${data.message}`, 'success');
-          currentUser.prenom = prenom;
-          currentUser.code = code;
-          setTimeout(() => showPage('pageAttente'), 1500);
-        } else {
-          showMessage('messageAccueil', `❌ ${data.message}`, 'error');
+        // Vérifier unicité du prénom
+        const participantsSnapshot = await db.ref('participants').once('value');
+        const participants = participantsSnapshot.val() || {};
+        
+        const prenomLower = prenom.toLowerCase();
+        for (let key in participants) {
+          if (participants[key].prenom.toLowerCase() === prenomLower) {
+            showMessage('messageAccueil', '❌ Ce nom est déjà pris, choisissez un autre nom', 'error');
+            return;
+          }
         }
+
+        // Créer le participant
+        const newParticipantRef = db.ref('participants').push();
+        await newParticipantRef.set({
+          prenom: prenom,
+          code: code,
+          equipe: null,
+          mots: "",
+          capitaine: false,
+          timestamp: Date.now()
+        });
+
+        showMessage('messageAccueil', '✅ Inscription réussie ! Notez bien votre nom et votre code : vous en aurez besoin pour accéder au jeu.', 'success');
+        
+        currentUser.id = newParticipantRef.key;
+        currentUser.prenom = prenom;
+        currentUser.code = code;
+        
+        setTimeout(() => {
+          showPage('pageAttente');
+          ecouterChangementEquipe();
+        }, 1500);
       } catch(error) {
-        showMessage('messageAccueil', '❌ ERREUR DE CONNEXION', 'error');
+        console.error(error);
+        showMessage('messageAccueil', '❌ ERREUR D\'INSCRIPTION', 'error');
       }
     }
 
     async function connexion(prenom, code) {
       try {
-        const res = await fetch(`${API_URL}?action=connexion&prenom=${encodeURIComponent(prenom)}&code=${encodeURIComponent(code)}`);
-        const data = await res.json();
-
-        if (data.success) {
-          currentUser.prenom = data.data.prenom;
-          currentUser.code = code;
-
-          if (data.data.statut === "ATTENTE") {
-            showPage('pageAttente');
-          } else {
-            currentUser.equipe = data.data.equipe;
-            currentUser.mots = data.data.mots;
-            afficherEquipe();
+        const participantsSnapshot = await db.ref('participants').once('value');
+        const participants = participantsSnapshot.val() || {};
+        
+        const prenomLower = prenom.toLowerCase();
+        
+        for (let key in participants) {
+          const p = participants[key];
+          if (p.prenom.toLowerCase() === prenomLower) {
+            if (p.code.toString() !== code.toString()) {
+              showMessage('messageAccueil', '❌ Nom ou code incorrect', 'error');
+              return;
+            }
+            
+            currentUser.id = key;
+            currentUser.prenom = p.prenom;
+            currentUser.code = p.code;
+            currentUser.equipe = p.equipe;
+            currentUser.mots = p.mots;
+            currentUser.capitaine = p.capitaine;
+            
+            if (!p.equipe) {
+              showPage('pageAttente');
+              ecouterChangementEquipe();
+            } else {
+              afficherEquipe();
+              demarrerEcoutesTempsReel();
+            }
+            return;
           }
-        } else {
-          showMessage('messageAccueil', `❌ ${data.message}`, 'error');
         }
+        
+        showMessage('messageAccueil', '❌ Nom ou code incorrect', 'error');
       } catch(error) {
+        console.error(error);
         showMessage('messageAccueil', '❌ ERREUR DE CONNEXION', 'error');
       }
     }
 
-    // ============================================
-    // PAGE ATTENTE
-    // ============================================
-    async function checkStatut() {
-      if (!currentUser.prenom || !currentUser.code) {
-        showPage('pageAccueil');
-        return;
-      }
-
-      showLoader();
-
-      try {
-        const res = await fetch(`${API_URL}?action=connexion&prenom=${encodeURIComponent(currentUser.prenom)}&code=${encodeURIComponent(currentUser.code)}`);
-        const data = await res.json();
-
-        if (data.success && data.data.statut === "EQUIPE") {
-          currentUser.equipe = data.data.equipe;
-          currentUser.mots = data.data.mots;
-          afficherEquipe();
+    function ecouterChangementEquipe() {
+      if (!currentUser.id) return;
+      
+      db.ref(`participants/${currentUser.id}/equipe`).on('value', (snapshot) => {
+        const equipe = snapshot.val();
+        if (equipe) {
+          // Recharger les données complètes
+          db.ref(`participants/${currentUser.id}`).once('value', (snap) => {
+            const p = snap.val();
+            currentUser.equipe = p.equipe;
+            currentUser.mots = p.mots;
+            currentUser.capitaine = p.capitaine;
+            afficherEquipe();
+            demarrerEcoutesTempsReel();
+          });
         }
-      } catch(error) {
-        console.error('Erreur check statut:', error);
-      } finally {
-        hideLoader();
-      }
-    }
-
-    // ============================================
-    // PAGE ÉQUIPE
-    // ============================================
-    function afficherEquipe() {
-      document.getElementById('prenomEquipe').textContent = currentUser.prenom;
-      document.getElementById('numeroEquipe').textContent = `EQUIPE ${currentUser.equipe}`;
-      showPage('pageEquipe');
+      });
     }
 
     function deconnexion() {
-      currentUser = { prenom: '', code: '', equipe: '', mots: '' };
+      // Arrêter toutes les écoutes
+      db.ref().off();
+      if (timerInterval) clearInterval(timerInterval);
+      
+      currentUser = {
+        id: null,
+        prenom: '',
+        code: '',
+        equipe: null,
+        mots: '',
+        capitaine: false
+      };
+      
       epreuvesData = [];
       document.getElementById('prenomAccueil').value = '';
       document.getElementById('codeAccueil').value = '';
+      document.getElementById('timerDisplay').style.display = 'none';
+      document.getElementById('timerBar').style.display = 'none';
+      document.getElementById('miniClassement').style.display = 'none';
+      
       showPage('pageAccueil');
     }
 
     // ============================================
-    // PAGE ÉPREUVES
+    // AFFICHAGE ÉQUIPE
+    // ============================================
+    function afficherEquipe() {
+      document.getElementById('prenomEquipe').textContent = currentUser.prenom;
+      document.getElementById('numeroEquipe').textContent = `EQUIPE ${currentUser.equipe}`;
+      
+      if (currentUser.capitaine) {
+        document.getElementById('capitaineBadge').innerHTML = '<div class="capitaine-badge">🔐 VOUS ETES LE CAPITAINE</div>';
+      } else {
+        document.getElementById('capitaineBadge').innerHTML = '<p style="color: #0FF; font-size: 0.7em; margin-top: 10px;">👥 MEMBRE DE L\'EQUIPE</p>';
+      }
+      
+      showPage('pageEquipe');
+    }
+
+    // ============================================
+    // ÉPREUVES
     // ============================================
     async function accederEpreuves() {
       showLoader();
@@ -772,198 +897,567 @@
 
     async function loadEpreuves() {
       try {
-        const res = await fetch(`${API_URL}?action=getEpreuves`);
-        const data = await res.json();
-
-        if (data.success) {
-          epreuvesData = data.data.epreuves;
+        const epreuvesSnapshot = await db.ref('epreuves').once('value');
+        const epreuvesObj = epreuvesSnapshot.val() || {};
+        
+        epreuvesData = Object.values(epreuvesObj).sort((a, b) => a.numero - b.numero);
+        
+        const tabsContainer = document.getElementById('tabsEpreuves');
+        const contentsContainer = document.getElementById('tabContentsEpreuves');
+        
+        tabsContainer.innerHTML = '';
+        contentsContainer.innerHTML = '';
+        
+        // Récupérer l'état des épreuves validées
+        const equipeSnapshot = await db.ref(`equipes/equipe_${currentUser.equipe}`).once('value');
+        const equipeData = equipeSnapshot.val() || {};
+        const epreuvesValidees = equipeData.epreuvesValidees || {};
+        
+        epreuvesData.forEach((epreuve, index) => {
+          const isValidee = epreuvesValidees[epreuve.numero]?.validee || false;
           
-          // Créer les onglets
-          const tabsContainer = document.getElementById('tabsEpreuves');
-          const contentsContainer = document.getElementById('tabContentsEpreuves');
+          // Créer l'onglet
+          const tabButton = document.createElement('button');
+          tabButton.className = 'tab-button' + (index === 0 ? ' active' : '');
+          tabButton.innerHTML = `${isValidee ? '✅' : '⬜'} EPREUVE ${epreuve.numero}`;
+          tabButton.onclick = () => switchTab(index);
+          tabsContainer.appendChild(tabButton);
           
-          tabsContainer.innerHTML = '';
-          contentsContainer.innerHTML = '';
+          // Créer le contenu
+          const tabContent = document.createElement('div');
+          tabContent.className = 'tab-content' + (index === 0 ? ' active' : '');
+          tabContent.id = `tab-content-${index}`;
           
-          epreuvesData.forEach((epreuve, index) => {
-            // Créer l'onglet
-            const tabButton = document.createElement('button');
-            tabButton.className = 'tab-button' + (index === 0 ? ' active' : '');
-            tabButton.textContent = `EPREUVE ${epreuve.numero}`;
-            tabButton.onclick = () => switchTab(index);
-            tabsContainer.appendChild(tabButton);
-            
-            // Créer le contenu
-            const tabContent = document.createElement('div');
-            tabContent.className = 'tab-content' + (index === 0 ? ' active' : '');
-            tabContent.id = `tab-content-${index}`;
-            
-            let contentHTML = '';
-            
-            // Si c'est l'épreuve 1, afficher les mots secrets en premier
-            if (epreuve.numero === 1) {
-              contentHTML += `
-                <div class="mots-box">
-                  <p style="color: #FFFF00; font-size: 0.85em; text-shadow: 0 0 10px #FFFF00;">${currentUser.mots || "AUCUN MOT"}</p>
-                </div>
-              `;
-            }
-            
+          let contentHTML = '';
+          
+          // Si épreuve 1, afficher les mots
+          if (epreuve.numero === 1) {
             contentHTML += `
-              <div class="epreuve-card">
-                <h3>EPREUVE ${epreuve.numero} : ${epreuve.titre}</h3>
-                <p><strong>INSTRUCTIONS :</strong> ${epreuve.instructions}</p>
-                <p><strong>CONTENU :</strong> ${epreuve.contenu}</p>
+              <div style="background: rgba(255, 255, 0, 0.1); border: 3px dashed #FFFF00; padding: 20px; margin: 20px 0; border-radius: 10px; text-align: center;">
+                <p style="color: #FFFF00; font-size: 0.85em; text-shadow: 0 0 10px #FFFF00;">${currentUser.mots || "AUCUN MOT"}</p>
               </div>
             `;
-            
-            tabContent.innerHTML = contentHTML;
-            contentsContainer.appendChild(tabContent);
-          });
+          }
           
-          showPage('pageEpreuves');
-        }
+          contentHTML += `
+            <div class="epreuve-card">
+              <h3>EPREUVE ${epreuve.numero} : ${epreuve.titre}</h3>
+              <p><strong>INSTRUCTIONS :</strong> ${epreuve.instructions}</p>
+              <p><strong>CONTENU :</strong> ${epreuve.contenu}</p>
+            </div>
+          `;
+          
+          // Si capitaine ET réponse existe, ajouter le formulaire de validation
+          if (currentUser.capitaine && epreuve.reponse) {
+            contentHTML += `
+              <div class="validation-box">
+                <h3 style="color: #FFD700; margin-bottom: 15px;">🔐 VALIDATION CAPITAINE</h3>
+                <div class="input-group">
+                  <label>ENTRER LA REPONSE :</label>
+                  <input type="text" id="reponse-${epreuve.numero}" placeholder="Votre réponse...">
+                </div>
+                <button onclick="validerReponse(${epreuve.numero})">✅ VALIDER LA REPONSE</button>
+                <div id="resultat-${epreuve.numero}"></div>
+              </div>
+            `;
+          }
+          
+          // Afficher si déjà validée
+          if (isValidee) {
+            const timestamp = epreuvesValidees[epreuve.numero].timestamp;
+            const date = new Date(timestamp);
+            contentHTML += `
+              <div style="background: rgba(0, 255, 0, 0.1); border: 2px solid #0F0; padding: 15px; margin: 20px 0; border-radius: 10px; text-align: center;">
+                <p style="color: #0F0; font-size: 0.8em;">✅ EPREUVE VALIDEE LE ${date.toLocaleTimeString('fr-FR')}</p>
+              </div>
+            `;
+          }
+          
+          tabContent.innerHTML = contentHTML;
+          contentsContainer.appendChild(tabContent);
+        });
+        
+        showPage('pageEpreuves');
       } catch(error) {
         console.error('Erreur load épreuves:', error);
       }
     }
 
     function switchTab(tabIndex) {
-      // Désactiver tous les onglets et contenus
       document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
       
-      // Activer l'onglet et le contenu sélectionnés
       document.querySelectorAll('.tab-button')[tabIndex].classList.add('active');
       document.getElementById(`tab-content-${tabIndex}`).classList.add('active');
     }
 
-    // ============================================
-    // PAGE ADMIN
-    // ============================================
-    async function loadStats() {
-      const codeAdmin = document.getElementById('codeAdmin').value;
-      if (!codeAdmin) {
-        showMessage('messageAdmin', '⚠️ ENTREZ LE CODE ADMIN', 'error');
+    async function validerReponse(numeroEpreuve) {
+      const reponseInput = document.getElementById(`reponse-${numeroEpreuve}`);
+      const reponse = reponseInput.value.trim();
+      const resultatDiv = document.getElementById(`resultat-${numeroEpreuve}`);
+      
+      if (!reponse) {
+        resultatDiv.innerHTML = '<p style="color: #F00; margin-top: 10px;">⚠️ Veuillez entrer une réponse</p>';
         return;
       }
-
-      showLoader();
-
+      
       try {
-        const res = await fetch(`${API_URL}?action=getStats&codeAdmin=${encodeURIComponent(codeAdmin)}`);
-        const data = await res.json();
-
-        if (data.success) {
-          const stats = data.data;
-          let html = '<div class="stats">';
-          html += `<div class="stat-item"><span class="stat-label">STATUT :</span><span class="stat-value">${stats.statut}</span></div>`;
-          html += `<div class="stat-item"><span class="stat-label">PARTICIPANTS :</span><span class="stat-value">${stats.nbParticipants}</span></div>`;
-          html += `<div class="stat-item"><span class="stat-label">EN ATTENTE :</span><span class="stat-value">${stats.nbEnAttente}</span></div>`;
-          html += `<div class="stat-item"><span class="stat-label">EQUIPES :</span><span class="stat-value">${stats.nbEquipes}</span></div>`;
+        // Récupérer la bonne réponse
+        const epreuveSnapshot = await db.ref(`epreuves/epreuve_${numeroEpreuve}/reponse`).once('value');
+        const bonneReponse = epreuveSnapshot.val();
+        
+        const reponseNormalisee = normalizeString(reponse);
+        const bonneReponseNormalisee = normalizeString(bonneReponse);
+        
+        if (reponseNormalisee === bonneReponseNormalisee) {
+          // Bonne réponse !
+          await db.ref(`equipes/equipe_${currentUser.equipe}/epreuvesValidees/${numeroEpreuve}`).set({
+            validee: true,
+            timestamp: Date.now()
+          });
           
-          if (stats.equipes.length > 0) {
-            html += '<div style="margin-top: 20px; color: #FFFF00; font-size: 0.7em;">REPARTITION :</div>';
-            stats.equipes.forEach(eq => {
-              html += `<div class="stat-item"><span class="stat-label">EQUIPE ${eq.numero} :</span><span class="stat-value">${eq.membres} MEMBRES</span></div>`;
-            });
+          // Recalculer le score
+          const equipeSnapshot = await db.ref(`equipes/equipe_${currentUser.equipe}/epreuvesValidees`).once('value');
+          const epreuvesValidees = equipeSnapshot.val() || {};
+          const score = Object.values(epreuvesValidees).filter(e => e.validee).length;
+          
+          await db.ref(`equipes/equipe_${currentUser.equipe}/score`).set(score);
+          
+          resultatDiv.innerHTML = '<p style="color: #0F0; margin-top: 10px; animation: blink 2s infinite;">✅ BONNE REPONSE ! BRAVO !</p>';
+          
+          // Recharger les épreuves pour mettre à jour l'affichage
+          setTimeout(() => loadEpreuves(), 2000);
+        } else {
+          resultatDiv.innerHTML = '<p style="color: #F00; margin-top: 10px;">❌ MAUVAISE REPONSE, REESSAYEZ !</p>';
+        }
+      } catch(error) {
+        console.error(error);
+        resultatDiv.innerHTML = '<p style="color: #F00; margin-top: 10px;">❌ ERREUR</p>';
+      }
+    }
+
+    // ============================================
+    // TEMPS RÉEL : TIMER, CLASSEMENT, MESSAGES
+    // ============================================
+    function demarrerEcoutesTempsReel() {
+      // Timer
+      db.ref('config/timerActif').on('value', (snapshot) => {
+        if (snapshot.val()) {
+          afficherTimer();
+        } else {
+          document.getElementById('timerDisplay').style.display = 'none';
+          document.getElementById('timerBar').style.display = 'none';
+        }
+      });
+      
+      // Classement
+      db.ref('equipes').on('value', (snapshot) => {
+        afficherMiniClassement(snapshot.val());
+      });
+      
+      // Messages
+      db.ref('messages').on('child_added', (snapshot) => {
+        afficherMessageAdmin(snapshot.val());
+      });
+    }
+
+    function afficherTimer() {
+      db.ref('config').once('value', (snapshot) => {
+        const config = snapshot.val();
+        if (!config.timerActif || !config.timerDebut) return;
+        
+        document.getElementById('timerDisplay').style.display = 'block';
+        document.getElementById('timerBar').style.display = 'block';
+        
+        if (timerInterval) clearInterval(timerInterval);
+        
+        timerInterval = setInterval(() => {
+          const elapsed = Date.now() - config.timerDebut;
+          const remaining = config.timerDuree * 1000 - elapsed;
+          
+          if (remaining <= 0) {
+            clearInterval(timerInterval);
+            document.getElementById('timerDisplay').textContent = '00:00';
+            document.getElementById('timerBar').style.width = '0%';
+            return;
           }
           
-          html += '</div>';
-          document.getElementById('statsAdmin').innerHTML = html;
-        } else {
-          showMessage('messageAdmin', `❌ ${data.message}`, 'error');
-        }
+          const minutes = Math.floor(remaining / 60000);
+          const seconds = Math.floor((remaining % 60000) / 1000);
+          document.getElementById('timerDisplay').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+          
+          const percentage = (remaining / (config.timerDuree * 1000)) * 100;
+          document.getElementById('timerBar').style.width = `${percentage}%`;
+        }, 1000);
+      });
+    }
+
+    function afficherMiniClassement(equipesData) {
+      if (!equipesData) return;
+      
+      const equipes = Object.values(equipesData).sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return a.tempsDebut - b.tempsDebut;
+      });
+      
+      const top3 = equipes.slice(0, 3);
+      const medals = ['🥇', '🥈', '🥉'];
+      
+      let html = '';
+      top3.forEach((eq, index) => {
+        html += `
+          <div class="mini-classement-item">
+            <span>${medals[index]} Equipe ${eq.numero}</span>
+            <span>${eq.score}/5</span>
+          </div>
+        `;
+      });
+      
+      document.getElementById('miniClassementContent').innerHTML = html;
+      document.getElementById('miniClassement').style.display = 'block';
+    }
+
+    function afficherMessageAdmin(message) {
+      if (message.destinataire !== 'all' && message.destinataire !== `equipe_${currentUser.equipe}`) {
+        return;
+      }
+      
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message-admin';
+      messageDiv.innerHTML = `
+        <p style="margin-bottom: 10px; font-weight: bold;">📢 MESSAGE DE L'ORGANISATEUR</p>
+        <p>${message.texte}</p>
+      `;
+      
+      document.body.appendChild(messageDiv);
+      
+      setTimeout(() => {
+        messageDiv.remove();
+      }, 10000);
+    }
+
+    // ============================================
+    // ADMIN : TIMER
+    // ============================================
+    async function demarrerTimer() {
+      const duree = parseInt(document.getElementById('timerDuree').value);
+      
+      if (!duree || duree < 1) {
+        showMessage('messageAdmin', '⚠️ Durée invalide', 'error');
+        return;
+      }
+      
+      try {
+        await db.ref('config').update({
+          timerDuree: duree * 60,
+          timerDebut: Date.now(),
+          timerActif: true
+        });
+        
+        showMessage('messageAdmin', '✅ Timer démarré !', 'success');
       } catch(error) {
-        showMessage('messageAdmin', '❌ ERREUR DE CONNEXION', 'error');
+        console.error(error);
+        showMessage('messageAdmin', '❌ Erreur', 'error');
+      }
+    }
+
+    async function pauserTimer() {
+      try {
+        await db.ref('config/timerActif').set(false);
+        showMessage('messageAdmin', '⏸️ Timer mis en pause', 'info');
+      } catch(error) {
+        console.error(error);
+      }
+    }
+
+    async function resetTimer() {
+      try {
+        await db.ref('config').update({
+          timerActif: false,
+          timerDebut: null
+        });
+        showMessage('messageAdmin', '⏹️ Timer réinitialisé', 'info');
+      } catch(error) {
+        console.error(error);
+      }
+    }
+
+    // ============================================
+    // ADMIN : MESSAGES
+    // ============================================
+    async function envoyerMessage() {
+      const texte = document.getElementById('messageTexte').value.trim();
+      const destinataire = document.getElementById('messageDestinataire').value;
+      
+      if (!texte) {
+        showMessage('messageAdmin', '⚠️ Message vide', 'error');
+        return;
+      }
+      
+      try {
+        await db.ref('messages').push({
+          texte: texte,
+          destinataire: destinataire,
+          timestamp: Date.now(),
+          auteur: 'admin'
+        });
+        
+        document.getElementById('messageTexte').value = '';
+        showMessage('messageAdmin', '✅ Message envoyé !', 'success');
+      } catch(error) {
+        console.error(error);
+        showMessage('messageAdmin', '❌ Erreur', 'error');
+      }
+    }
+
+    // ============================================
+    // ADMIN : STATS ET CLASSEMENT
+    // ============================================
+    async function loadStats() {
+      showLoader();
+      
+      try {
+        const [configSnap, participantsSnap, equipesSnap] = await Promise.all([
+          db.ref('config').once('value'),
+          db.ref('participants').once('value'),
+          db.ref('equipes').once('value')
+        ]);
+        
+        const config = configSnap.val();
+        const participants = participantsSnap.val() || {};
+        const equipes = equipesSnap.val() || {};
+        
+        const nbParticipants = Object.keys(participants).length;
+        const nbEnAttente = Object.values(participants).filter(p => !p.equipe).length;
+        const nbEquipes = Object.keys(equipes).length;
+        
+        let html = '<div class="stats">';
+        html += `<div class="stat-item"><span class="stat-label">STATUT :</span><span class="stat-value">${config.statutInscriptions}</span></div>`;
+        html += `<div class="stat-item"><span class="stat-label">PARTICIPANTS :</span><span class="stat-value">${nbParticipants}</span></div>`;
+        html += `<div class="stat-item"><span class="stat-label">EN ATTENTE :</span><span class="stat-value">${nbEnAttente}</span></div>`;
+        html += `<div class="stat-item"><span class="stat-label">EQUIPES :</span><span class="stat-value">${nbEquipes}</span></div>`;
+        html += '</div>';
+        
+        document.getElementById('statsAdmin').innerHTML = html;
+        
+        // Classement détaillé
+        const equipesArray = Object.values(equipes).sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          return a.tempsDebut - b.tempsDebut;
+        });
+        
+        let classementHTML = '<div class="stats">';
+        const medals = ['🥇', '🥈', '🥉'];
+        
+        equipesArray.forEach((eq, index) => {
+          const medal = index < 3 ? medals[index] : `${index + 1}.`;
+          classementHTML += `
+            <div style="margin: 15px 0; padding: 15px; background: rgba(0, 255, 255, 0.05); border: 2px solid #0FF; border-radius: 10px;">
+              <div style="font-size: 1em; color: #FFFF00; margin-bottom: 10px;">${medal} EQUIPE ${eq.numero}</div>
+              <div class="stat-item"><span class="stat-label">Score :</span><span class="stat-value">${eq.score || 0}/5</span></div>
+              <div class="stat-item"><span class="stat-label">Membres :</span><span class="stat-value">${eq.membres.length}</span></div>
+            </div>
+          `;
+        });
+        classementHTML += '</div>';
+        
+        document.getElementById('classementDetail').innerHTML = classementHTML;
+        
+        // Mettre à jour le select des destinataires
+        const select = document.getElementById('messageDestinataire');
+        select.innerHTML = '<option value="all">TOUTES LES EQUIPES</option>';
+        equipesArray.forEach(eq => {
+          select.innerHTML += `<option value="equipe_${eq.numero}">EQUIPE ${eq.numero}</option>`;
+        });
+        
+      } catch(error) {
+        console.error(error);
+        showMessage('messageAdmin', '❌ Erreur de chargement', 'error');
       } finally {
         hideLoader();
       }
     }
 
+    // ============================================
+    // ADMIN : CLÔTURER LES INSCRIPTIONS
+    // ============================================
     async function cloturerInscriptions() {
       const codeAdmin = document.getElementById('codeAdmin').value;
-      if (!codeAdmin) {
-        showMessage('messageAdmin', '⚠️ ENTREZ LE CODE ADMIN', 'error');
+      if (codeAdmin !== '2025') {
+        showMessage('messageAdmin', '❌ Code admin incorrect', 'error');
         return;
       }
-
+      
       if (!confirm('CONFIRMER LA CLOTURE ET LA CREATION DES EQUIPES ?')) return;
-
+      
       showLoader();
-
+      
       try {
-        const res = await fetch(`${API_URL}?action=cloturer&codeAdmin=${encodeURIComponent(codeAdmin)}`);
-        const data = await res.json();
-
-        if (data.success) {
-          showMessage('messageAdmin', `✅ ${data.message}`, 'success');
-          await loadStats();
-        } else {
-          showMessage('messageAdmin', `❌ ${data.message}`, 'error');
+        const [configSnap, participantsSnap] = await Promise.all([
+          db.ref('config').once('value'),
+          db.ref('participants').once('value')
+        ]);
+        
+        const config = configSnap.val();
+        const participantsObj = participantsSnap.val() || {};
+        const participants = Object.entries(participantsObj)
+          .filter(([key, p]) => !p.equipe)
+          .map(([key, p]) => ({ id: key, ...p }));
+        
+        if (participants.length === 0) {
+          showMessage('messageAdmin', '⚠️ Aucun participant en attente', 'error');
+          hideLoader();
+          return;
         }
+        
+        const tailleMax = config.tailleMax;
+        const phrase = config.phrase;
+        const mots = phrase.split(' ').filter(m => m.length > 0);
+        
+        const nbEquipes = Math.ceil(participants.length / tailleMax);
+        const equipes = Array.from({ length: nbEquipes }, () => []);
+        
+        participants.forEach((p, index) => {
+          equipes[index % nbEquipes].push(p);
+        });
+        
+        // Créer les équipes dans Firebase
+        for (let i = 0; i < equipes.length; i++) {
+          const numEquipe = i + 1;
+          const membres = equipes[i];
+          
+          const membresIds = membres.map(m => m.id);
+          
+          // Créer l'équipe
+          await db.ref(`equipes/equipe_${numEquipe}`).set({
+            numero: numEquipe,
+            membres: membresIds,
+            score: 0,
+            tempsDebut: Date.now(),
+            epreuvesValidees: {
+              1: { validee: false },
+              2: { validee: false },
+              3: { validee: false },
+              4: { validee: false },
+              5: { validee: false }
+            }
+          });
+          
+          // Assigner les mots et mettre à jour les participants
+          for (let j = 0; j < membres.length; j++) {
+            const motsAssignes = [];
+            for (let k = j; k < mots.length; k += membres.length) {
+              motsAssignes.push(mots[k]);
+            }
+            
+            await db.ref(`participants/${membres[j].id}`).update({
+              equipe: numEquipe,
+              mots: motsAssignes.join(' '),
+              capitaine: j === 0
+            });
+          }
+        }
+        
+        // Fermer les inscriptions
+        await db.ref('config/statutInscriptions').set('CLOTURE');
+        
+        showMessage('messageAdmin', `✅ ${nbEquipes} équipes créées avec succès !`, 'success');
+        await loadStats();
+        
       } catch(error) {
-        showMessage('messageAdmin', '❌ ERREUR DE CONNEXION', 'error');
+        console.error(error);
+        showMessage('messageAdmin', '❌ Erreur', 'error');
       } finally {
         hideLoader();
       }
     }
 
+    // ============================================
+    // ADMIN : ROUVRIR INSCRIPTIONS
+    // ============================================
     async function rouvrirInscriptions() {
       const codeAdmin = document.getElementById('codeAdmin').value;
-      if (!codeAdmin) {
-        showMessage('messageAdmin', '⚠️ ENTREZ LE CODE ADMIN', 'error');
+      if (codeAdmin !== '2025') {
+        showMessage('messageAdmin', '❌ Code admin incorrect', 'error');
         return;
       }
-
+      
       if (!confirm('CONFIRMER LA REOUVERTURE (LES EQUIPES SERONT SUPPRIMEES) ?')) return;
-
+      
       showLoader();
-
+      
       try {
-        const res = await fetch(`${API_URL}?action=rouvrir&codeAdmin=${encodeURIComponent(codeAdmin)}`);
-        const data = await res.json();
-
-        if (data.success) {
-          showMessage('messageAdmin', `✅ ${data.message}`, 'success');
-          await loadStats();
-        } else {
-          showMessage('messageAdmin', `❌ ${data.message}`, 'error');
+        // Supprimer toutes les équipes
+        await db.ref('equipes').remove();
+        
+        // Remettre tous les participants en attente
+        const participantsSnap = await db.ref('participants').once('value');
+        const participants = participantsSnap.val() || {};
+        
+        for (let key in participants) {
+          await db.ref(`participants/${key}`).update({
+            equipe: null,
+            mots: "",
+            capitaine: false
+          });
         }
+        
+        // Ouvrir les inscriptions
+        await db.ref('config/statutInscriptions').set('OUVERT');
+        
+        showMessage('messageAdmin', '✅ Inscriptions réouvertes !', 'success');
+        await loadStats();
+        
       } catch(error) {
-        showMessage('messageAdmin', '❌ ERREUR DE CONNEXION', 'error');
+        console.error(error);
+        showMessage('messageAdmin', '❌ Erreur', 'error');
       } finally {
         hideLoader();
       }
     }
 
+    // ============================================
+    // ADMIN : RÉINITIALISER
+    // ============================================
     async function reinitialiser() {
       const codeAdmin = document.getElementById('codeAdmin').value;
-      if (!codeAdmin) {
-        showMessage('messageAdmin', '⚠️ ENTREZ LE CODE ADMIN', 'error');
+      if (codeAdmin !== '2025') {
+        showMessage('messageAdmin', '❌ Code admin incorrect', 'error');
         return;
       }
-
+      
       if (!confirm('⚠️ ATTENTION ! CECI VA SUPPRIMER TOUTES LES DONNEES. CONFIRMER ?')) return;
-
+      
       showLoader();
-
+      
       try {
-        const res = await fetch(`${API_URL}?action=reinitialiser&codeAdmin=${encodeURIComponent(codeAdmin)}`);
-        const data = await res.json();
-
-        if (data.success) {
-          showMessage('messageAdmin', `✅ ${data.message}`, 'success');
-          document.getElementById('statsAdmin').innerHTML = '';
-        } else {
-          showMessage('messageAdmin', `❌ ${data.message}`, 'error');
-        }
+        await Promise.all([
+          db.ref('participants').remove(),
+          db.ref('equipes').remove(),
+          db.ref('messages').remove(),
+          db.ref('config').update({
+            statutInscriptions: 'OUVERT',
+            timerActif: false,
+            timerDebut: null
+          })
+        ]);
+        
+        showMessage('messageAdmin', '✅ Toutes les données ont été supprimées !', 'success');
+        document.getElementById('statsAdmin').innerHTML = '';
+        document.getElementById('classementDetail').innerHTML = '';
+        
       } catch(error) {
-        showMessage('messageAdmin', '❌ ERREUR DE CONNEXION', 'error');
+        console.error(error);
+        showMessage('messageAdmin', '❌ Erreur', 'error');
       } finally {
         hideLoader();
       }
     }
-  </script>
-</body>
-</html>
+
+    // ============================================
+    // INITIALISATION
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('🎮 Cyber Escape - Firebase Ready!');
+    });
